@@ -16,3 +16,10 @@ dependencies = [
 
 [tool.fastapi]
 entrypoint = "app.main:app"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+fixable = ["ALL"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
