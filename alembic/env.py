@@ -1,4 +1,7 @@
+import importlib
+import pkgutil
 from logging.config import fileConfig
+from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
@@ -6,6 +9,17 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.config import settings
 from app.models.base import Base
+
+
+def import_all_models() -> None:
+    package = "app.models"
+    package_path = Path(__file__).resolve().parent.parent / "app" / "models"
+
+    for _, module_name, _ in pkgutil.iter_modules([str(package_path)]):
+        if module_name.startswith("_"):
+            continue
+        importlib.import_module(f"{package}.{module_name}")
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -15,6 +29,8 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+import_all_models()
 
 # add your model's MetaData object here
 # for 'autogenerate' support

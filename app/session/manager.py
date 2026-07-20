@@ -59,3 +59,18 @@ def get_session(
         raise HTTPException(401)
 
     return data
+
+
+def get_session_id(
+    cookie: Annotated[str | None, Security(session_cookie)],
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> str | None:
+    if token is not None:
+        return token
+    elif cookie is not None:
+        return cookie
+    return None
+
+
+def drop_session(session_id: str | None):
+    sessions.pop(session_id, None)
