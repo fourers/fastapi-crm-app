@@ -11,5 +11,8 @@ router = APIRouter()
 
 
 @router.get("/client")
-def get_clients(session: Annotated[CachedSession, Depends(get_session)], db: Annotated[Session, Depends(get_db)]):
+def get_clients(
+    session: Annotated[CachedSession, Depends(get_session)],
+    db: Annotated[Session, Depends(get_db)],
+):
     return db.query(Client).all()

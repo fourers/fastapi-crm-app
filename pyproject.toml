@@ -9,7 +9,9 @@ dependencies = [
     "fastapi[standard]>=0.139.2",
     "psycopg>=3.3.4",
     "python-dotenv>=1.2.2",
+    "ruff>=0.15.22",
     "sqlalchemy>=2.0.51",
+    "ty>=0.0.61",
 ]
 
 [tool.fastapi]

@@ -10,7 +10,9 @@ class Settings:
         pgpassword = os.environ["PGPASSWORD"]
         pgdatabase = os.environ["PGDATABASE"]
 
-        return f"postgresql+psycopg://{pguser}:{pgpassword}@{pghost}:{pgport}/{pgdatabase}"
+        return (
+            f"postgresql+psycopg://{pguser}:{pgpassword}@{pghost}:{pgport}/{pgdatabase}"
+        )
 
 
 settings = Settings()

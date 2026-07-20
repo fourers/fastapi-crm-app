@@ -2,7 +2,7 @@ import secrets
 from dataclasses import dataclass
 from typing import Annotated
 
-from fastapi import Cookie, Depends, HTTPException, Security
+from fastapi import Depends, HTTPException, Security
 from fastapi.security import APIKeyCookie, OAuth2PasswordBearer
 
 from app.models.user import User
@@ -45,12 +45,15 @@ def get_optional_session(
     return None
 
 
-def get_session(cookie: Annotated[str | None, Security(session_cookie)], token: Annotated[str | None, Depends(oauth2_scheme)]) -> CachedSession:
+def get_session(
+    cookie: Annotated[str | None, Security(session_cookie)],
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+) -> CachedSession:
     data = None
     if token is not None:
         data = sessions.get(token)
     elif cookie is not None:
-        data = sessions.get(cookie)\
+        data = sessions.get(cookie)
 
     if data is None:
         raise HTTPException(401)
