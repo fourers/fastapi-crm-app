@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -17,13 +17,13 @@ def get_clients(
     session: Annotated[CachedSession, Depends(get_session)],
     db: Annotated[Session, Depends(get_db)],
 ):
-    return db.execute(select(Client).order_by(Client.id)).all()
+    return db.scalars(select(Client).order_by(Client.id)).all()
 
 
 class ClientCreate(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
     owner_id: int | None = None
 
 
@@ -33,13 +33,32 @@ def create_client(
     session: Annotated[CachedSession, Depends(get_session)],
     db: Annotated[Session, Depends(get_db)],
 ):
-    client = Client(
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        email=payload.email,
-        owner_id=payload.owner_id if payload.owner_id is not None else session.id,
-    )
+    client_dict = payload.model_dump(exclude_unset=True)
+    if "owner_id" not in client_dict:
+        client_dict["owner_id"] = session.id
+
+    client = Client(**client_dict)
     db.add(client)
+    db.commit()
+    db.refresh(client)
+    return client
+
+
+@router.patch("/client/{client_id}")
+def update_client(
+    client_id: Annotated[int, Path()],
+    payload: ClientCreate,
+    session: Annotated[CachedSession, Depends(get_session)],
+    db: Annotated[Session, Depends(get_db)],
+):
+    client_dict = payload.model_dump(exclude_unset=True)
+    client = db.scalars(select(Client).filter_by(id=client_id)).first()
+    if not client:
+        raise HTTPException(404)
+
+    for key, value in client_dict.items():
+        setattr(client, key, value)
+
     db.commit()
     db.refresh(client)
     return client

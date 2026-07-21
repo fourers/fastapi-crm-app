@@ -61,15 +61,16 @@ def get_session(
     return data
 
 
-def get_session_id(
+def get_session_cookie(
     cookie: Annotated[str | None, Security(session_cookie)],
+) -> str | None:
+    return cookie
+
+
+def get_session_token(
     token: Annotated[str | None, Depends(oauth2_scheme)],
 ) -> str | None:
-    if token is not None:
-        return token
-    elif cookie is not None:
-        return cookie
-    return None
+    return token
 
 
 def drop_session(session_id: str | None):

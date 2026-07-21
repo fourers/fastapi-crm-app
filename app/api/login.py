@@ -13,7 +13,8 @@ from app.session.manager import (
     create_session,
     drop_session,
     get_optional_session,
-    get_session_id,
+    get_session_cookie,
+    get_session_token,
 )
 
 router = APIRouter(tags=["auth"])
@@ -44,13 +45,18 @@ def login(
 
 
 @router.post("/token")
-def post_token(
+def authenticate_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Annotated[Session, Depends(get_db)],
 ):
     user = _get_user_by_username(db, form_data.username)
 
     return {"access_token": create_session(user), "token_type": "bearer"}
+
+
+@router.delete("/token")
+def revoke_token(token: Annotated[str | None, Depends(get_session_token)]):
+    drop_session(token)
 
 
 @router.get("/", include_in_schema=False)
@@ -61,9 +67,9 @@ def home(session: Annotated[CachedSession, Depends(get_optional_session)]):
         return FileResponse("app/static/home.html")
 
 
-@router.post("/logout")
-def logout(session: Annotated[str | None, Depends(get_session_id)]):
-    drop_session(session)
+@router.post("/logout", include_in_schema=False)
+def logout(cookie: Annotated[str | None, Depends(get_session_cookie)]):
+    drop_session(cookie)
     response = RedirectResponse("/", status_code=303)
     response.delete_cookie("session")
     return response

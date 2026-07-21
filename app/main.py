@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI
 
 from app.api.client import router as client
 from app.api.login import router as login
+from app.api.user import router as user
 
 load_dotenv()
 
@@ -13,3 +14,4 @@ app.include_router(login)
 api_router = APIRouter(prefix="/api", tags=["api"])
 app.include_router(api_router)
 api_router.include_router(client)
+api_router.include_router(user)
