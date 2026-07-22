@@ -29,12 +29,12 @@ def upgrade() -> None:
         ON clients
         FOR ALL
         USING (
-            COALESCE(current_setting('app.enable_rls', true)::boolean, true) = false
-            OR owner_id = current_setting('app.current_user_id', true)::int
+            COALESCE(NULLIF(current_setting('app.enable_rls', true), '')::boolean, false) = false
+            OR owner_id = NULLIF(current_setting('app.current_user_id', true), '')::int
         )
         WITH CHECK (
-            COALESCE(current_setting('app.enable_rls', true)::boolean, true) = false
-            OR owner_id = current_setting('app.current_user_id', true)::int
+            COALESCE(NULLIF(current_setting('app.enable_rls', true), '')::boolean, false) = false
+            OR owner_id = NULLIF(current_setting('app.current_user_id', true), '')::int
         );
     """)
     # ### end Alembic commands ###
