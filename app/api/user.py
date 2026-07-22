@@ -40,7 +40,6 @@ class UserCreate(UserUpdate):
 @router.post("/user")
 def create_user(
     payload: UserCreate,
-    session: Annotated[CachedSession, Depends(get_session)],
     db: Annotated[Session, Depends(get_db)],
 ):
     user_dict = payload.model_dump(exclude_unset=True)
@@ -56,7 +55,6 @@ def create_user(
 def update_user(
     user_id: Annotated[int, Path()],
     payload: UserUpdate,
-    session: Annotated[CachedSession, Depends(get_session)],
     db: Annotated[Session, Depends(get_db)],
 ):
     user_dict = payload.model_dump(exclude_unset=True)

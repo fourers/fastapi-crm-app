@@ -46,7 +46,7 @@ target_metadata = Base.metadata
 load_dotenv()
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database_url,
+    settings.admin_database_url,
 )
 
 

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.db.rls import get_rls_db
 from app.models.client import Client
 from app.session.manager import CachedSession, get_session
 
@@ -14,8 +14,7 @@ router = APIRouter()
 
 @router.get("/client")
 def get_clients(
-    session: Annotated[CachedSession, Depends(get_session)],
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
 ):
     return db.scalars(select(Client).order_by(Client.id)).all()
 
@@ -31,10 +30,10 @@ class ClientCreate(BaseModel):
 def create_client(
     payload: ClientCreate,
     session: Annotated[CachedSession, Depends(get_session)],
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
 ):
     client_dict = payload.model_dump(exclude_unset=True)
-    if "owner_id" not in client_dict:
+    if client_dict.get("owner_id") is None:
         client_dict["owner_id"] = session.id
 
     client = Client(**client_dict)
@@ -48,8 +47,7 @@ def create_client(
 def update_client(
     client_id: Annotated[int, Path()],
     payload: ClientCreate,
-    session: Annotated[CachedSession, Depends(get_session)],
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
 ):
     client_dict = payload.model_dump(exclude_unset=True)
     client = db.scalars(select(Client).filter_by(id=client_id)).first()
