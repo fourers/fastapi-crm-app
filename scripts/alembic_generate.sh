@@ -8,4 +8,4 @@ if [[ -z "${message}" ]]; then
     exit 1
 fi
 
-alembic revision --autogenerate -m "${message}"
+uv run alembic revision --autogenerate -m "${message}"

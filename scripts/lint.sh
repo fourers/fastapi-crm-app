@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 set -euo pipefail
 
-ty check .
+uv run ty check .
 
-ruff check --fix .
-ruff format .
+uv run ruff check --fix .
+uv run ruff format .
