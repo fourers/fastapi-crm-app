@@ -1,5 +1,7 @@
 import os
 
+from app.utils.vault import get_secret
+
 
 class Settings:
     @staticmethod
@@ -13,15 +15,17 @@ class Settings:
 
     @property
     def database_url(self):
-        pguser = os.environ["PGUSER"]
-        pgpassword = os.environ["PGPASSWORD"]
-        return self.generate_database_url(pguser, pgpassword)
+        app_user_creds = get_secret("myapp/app_user")
+        return self.generate_database_url(
+            app_user_creds["username"], app_user_creds["password"]
+        )
 
     @property
     def admin_database_url(self):
-        pguser = os.environ["ADMIN_PGUSER"]
-        pgpassword = os.environ["ADMIN_PGPASSWORD"]
-        return self.generate_database_url(pguser, pgpassword)
+        app_admin_creds = get_secret("myapp/app_admin")
+        return self.generate_database_url(
+            app_admin_creds["username"], app_admin_creds["password"]
+        )
 
 
 settings = Settings()

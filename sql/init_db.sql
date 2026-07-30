@@ -1,8 +1,4 @@
-CREATE USER app_admin PASSWORD 'strong_password';
-
 CREATE DATABASE myapp OWNER app_admin;
-
-CREATE USER app_user PASSWORD 'secret';
 
 GRANT CONNECT ON DATABASE myapp TO app_user;
 

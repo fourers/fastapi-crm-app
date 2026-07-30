@@ -9,6 +9,7 @@ dependencies = [
     "click",
     "fastapi[standard]",
     "httpx",
+    "hvac",
     "psycopg",
     "python-dotenv",
     "rich",
