@@ -18,12 +18,15 @@ class CachedSession:
     username: str
     expiration: datetime
     refresh_token: str
+    id_token: str
 
 
 sessions: dict[str, CachedSession] = {}
 
 
-def create_session(user: User, expiration: datetime, refresh_token: str) -> str:
+def create_session(
+    user: User, expiration: datetime, refresh_token: str, id_token: str
+) -> str:
     session_id = secrets.token_urlsafe(32)
 
     sessions[session_id] = CachedSession(
@@ -31,6 +34,7 @@ def create_session(user: User, expiration: datetime, refresh_token: str) -> str:
         user.username,
         expiration,
         refresh_token,
+        id_token,
     )
     return session_id
 

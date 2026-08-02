@@ -73,7 +73,9 @@ async def keycloak_callback(request: Request, db: Annotated[Session, Depends(get
         )
 
     expiration = now + timedelta(seconds=token["expires_in"])
-    session_id = create_session(user, expiration, token.get("refresh_token"))
+    session_id = create_session(
+        user, expiration, token.get("refresh_token"), token.get("id_token")
+    )
 
     response = RedirectResponse("/")
     response.set_cookie(
@@ -98,11 +100,14 @@ async def logout(request: Request):
 
     metadata = await oauth_client().keycloak.load_server_metadata()
     params = {
-        "post_logout_redirect_uri": request.url_for("home"),
+        "post_logout_redirect_uri": str(request.url_for("home")),
         "client_id": settings.client_id,
+        "id_token_hint": session.id_token,
     }
+    logger.warning(f"params={params}")
     response = RedirectResponse(
-        f"{metadata['end_session_endpoint']}?{urlencode(params)}"
+        f"{metadata['end_session_endpoint']}?{urlencode(params)}",
+        status_code=303,
     )
     response.delete_cookie("session_id")
     return response
