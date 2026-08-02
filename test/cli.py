@@ -1,36 +1,63 @@
-import secrets
+import os
 
 import click
 import httpx
+from dotenv import load_dotenv
 from faker import Faker
 from rich import print_json
 
+load_dotenv()
+
 TEST_ENDPOINT = "http://127.0.0.1:8000"
+KC_URL = os.environ["KC_URL"]
+KC_REALM = os.environ["KC_REALM"]
+KC_CLIENT_ID = os.environ["KC_CLIENT_ID"]
 
 fake = Faker()
 
 
 class TestSession:
-    def __init__(self, username: str):
+    def __init__(self, username: str, password: str):
         self.client = httpx.Client()
         self.username = username
+        self.password = password
 
     def __enter__(self):
-        response = self.client.post(
-            f"{TEST_ENDPOINT}/login",
-            data={
-                "grant": "password",
-                "username": self.username,
-                "password": secrets.token_urlsafe(16),
-            },
-        )
-        if response.status_code != 303:
-            response.raise_for_status()
+        self.login(self.username, self.password)
         return self
 
-    def __exit__(self, exc_type, exc, tb):
-        response = self.client.post(f"{TEST_ENDPOINT}/logout")
-        if response.status_code != 303:
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.logout()
+        self.client.close()
+
+    def login(self, username: str, password: str) -> None:
+        token_resp = self.client.post(
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token",
+            data={
+                "grant_type": "password",
+                "client_id": KC_CLIENT_ID,
+                "username": username,
+                "password": password,
+                "scope": "openid profile email",
+            },
+        )
+        token_resp.raise_for_status()
+        tokens = token_resp.json()
+
+        login_resp = self.client.post(
+            f"{TEST_ENDPOINT}/auth/login",
+            json={
+                "access_token": tokens["access_token"],
+                "refresh_token": tokens.get("refresh_token", ""),
+                "id_token": tokens.get("id_token", ""),
+                "expires_in": tokens["expires_in"],
+            },
+        )
+        login_resp.raise_for_status()
+
+    def logout(self) -> None:
+        response = self.client.post(f"{TEST_ENDPOINT}/auth/logout")
+        if not response.is_redirect:
             response.raise_for_status()
 
     def create_random_client(self) -> dict:
@@ -75,39 +102,44 @@ class TestSession:
         return response.json()
 
 
+def user_password_options(func):
+    func = click.option("--user", default="admin", type=click.STRING)(func)
+    return click.option("--password", default="password", type=click.STRING)(func)
+
+
 @click.group()
 def cli():
     pass
 
 
 @cli.command()
-@click.option("--user", default="admin", type=click.STRING)
-def random_client(user: str):
-    with TestSession(user) as session:
+@user_password_options
+def random_client(user: str, password: str):
+    with TestSession(user, password) as session:
         response = session.create_random_client()
         print_json(data=response)
 
 
 @cli.command()
-@click.option("--user", default="admin", type=click.STRING)
-def random_user(user: str):
-    with TestSession(user) as session:
+@user_password_options
+def random_user(user: str, password: str):
+    with TestSession(user, password) as session:
         response = session.create_random_user()
         print_json(data=response)
 
 
 @cli.command()
-@click.option("--user", default="admin", type=click.STRING)
-def list_clients(user: str):
-    with TestSession(user) as session:
+@user_password_options
+def list_clients(user: str, password: str):
+    with TestSession(user, password) as session:
         response = session.get_clients()
         print_json(data=response)
 
 
 @cli.command()
-@click.option("--user", default="admin", type=click.STRING)
-def list_users(user: str):
-    with TestSession(user) as session:
+@user_password_options
+def list_users(user: str, password: str):
+    with TestSession(user, password) as session:
         response = session.get_users()
         print_json(data=response)
 

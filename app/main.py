@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.client import router as client
@@ -16,6 +17,8 @@ app.add_middleware(
     https_only=False,
     same_site="lax",
 )
+
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 app.include_router(login)
 
