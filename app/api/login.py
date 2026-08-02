@@ -94,7 +94,6 @@ async def post_login(
     user = _get_user_by_id(db, sub)
 
     if not user:
-        logger.warning(f"Unable to find user: {sub}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     session_id, expiration = _create_app_session(
