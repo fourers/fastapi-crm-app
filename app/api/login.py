@@ -45,7 +45,7 @@ def oauth_client():
     return oauth
 
 
-@router.get("/auth/login")
+@router.get("/auth/login", name="login")
 async def keycloak_login(request: Request):
     return await oauth_client().keycloak.authorize_redirect(
         request,
@@ -68,9 +68,7 @@ async def keycloak_callback(request: Request, db: Annotated[Session, Depends(get
 
     if not user:
         logger.warning(f"Unable to find user: {sub}")
-        return await oauth_client().keycloak.logout_redirect(
-            request,
-        )
+        return RedirectResponse(request.url_for("error-page"))
 
     expiration = now + timedelta(seconds=token["expires_in"])
     session_id = create_session(
@@ -92,10 +90,9 @@ async def logout(request: Request):
     session_id = request.cookies.get("session_id")
     session = delete_session(session_id)
 
-    response = RedirectResponse("/")
-    response.delete_cookie("session_id")
-
     if not session:
+        response = RedirectResponse("/")
+        response.delete_cookie("session_id")
         return response
 
     metadata = await oauth_client().keycloak.load_server_metadata()
@@ -117,7 +114,9 @@ def home(
     request: Request, session: Annotated[CachedSession, Depends(get_optional_session)]
 ):
     if session is None:
-        return templates.TemplateResponse(request, "login.html")
+        return templates.TemplateResponse(request, "login.html", context={
+            "login": request.url_for("login")
+        })
     else:
         return templates.TemplateResponse(
             request, "home.html", context={"logout": request.url_for("logout")}
