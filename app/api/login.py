@@ -11,13 +11,13 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.database.admin import get_db
 from app.models.user import User
+from app.session.handler import get_optional_session
 from app.session.manager import (
     CachedSession,
     create_session,
     delete_session,
-    get_optional_session,
 )
 from app.utils.keycloak import settings
 
@@ -104,7 +104,6 @@ async def logout(request: Request):
         "client_id": settings.client_id,
         "id_token_hint": session.id_token,
     }
-    logger.warning(f"params={params}")
     response = RedirectResponse(
         f"{metadata['end_session_endpoint']}?{urlencode(params)}",
         status_code=303,
@@ -123,3 +122,10 @@ def home(
         return templates.TemplateResponse(
             request, "home.html", context={"logout": request.url_for("logout")}
         )
+
+
+@router.get("/error-page", include_in_schema=False, name="error-page")
+def error_page(request: Request):
+    return templates.TemplateResponse(
+        request, "error.html", context={"logout": request.url_for("logout")}
+    )

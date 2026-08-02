@@ -5,8 +5,9 @@ from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.db.database import get_admin_session
-from app.session.manager import CachedSession, get_session
+from app.database.admin import get_admin_session
+from app.session.handler import get_session
+from app.session.manager import CachedSession
 
 ADMIN_ID = 1
 

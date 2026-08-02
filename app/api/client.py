@@ -5,10 +5,11 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
-from app.db.rls import apply_rls
+from app.database.admin import get_db
+from app.database.rls import apply_rls
 from app.models.client import Client
-from app.session.manager import CachedSession, get_session
+from app.session.handler import get_session
+from app.session.manager import CachedSession
 
 router = APIRouter()
 

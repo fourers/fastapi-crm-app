@@ -1,11 +1,7 @@
 import logging
 import secrets
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Annotated
-
-from fastapi import Depends, HTTPException
-from fastapi.security import APIKeyCookie
+from datetime import datetime
 
 from app.models.user import User
 
@@ -39,30 +35,9 @@ def create_session(
     return session_id
 
 
+def get_session(session_id: str) -> CachedSession | None:
+    return sessions.get(session_id)
+
+
 def delete_session(session_id: str | None) -> CachedSession | None:
     return sessions.pop(session_id, None)
-
-
-session_id_cookie = APIKeyCookie(name="session_id", auto_error=False)
-
-
-def get_optional_session(
-    session_id: Annotated[str, Depends(session_id_cookie)],
-) -> CachedSession | None:
-    logger.info(f"Sessions: {sessions}")
-    now = datetime.now(timezone.utc)
-    session = sessions.get(session_id)
-    if session is not None and session.expiration > now:
-        logger.info(f"Session found: {session}")
-        return session
-    else:
-        logger.warning(f"No session found for {session_id}: {session}")
-        return None
-
-
-def get_session(
-    session: Annotated[CachedSession | None, Depends(get_optional_session)],
-) -> CachedSession:
-    if session is None:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    return session

@@ -4,7 +4,7 @@ from functools import cache
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.config import settings
+from app.config.database import settings
 
 
 @cache

@@ -6,9 +6,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.database import get_db
+from app.database.admin import get_db
 from app.models.user import User
-from app.session.manager import CachedSession, get_session
+from app.session.handler import get_session
+from app.session.manager import CachedSession
 from app.utils.keycloak import create_user as create_keycloak_user
 
 router = APIRouter()
