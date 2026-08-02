@@ -15,6 +15,8 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), nullable=True)
     username: Mapped[str] = mapped_column(String(50), unique=True)
-    name: Mapped[str] = mapped_column(String(100), nullable=True)
+    keycloak_id: Mapped[str] = mapped_column(String(50), unique=True)
+    first_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    last_name: Mapped[str] = mapped_column(String(100), nullable=True)
 
     clients: Mapped[list["Client"]] = relationship(back_populates="owner")

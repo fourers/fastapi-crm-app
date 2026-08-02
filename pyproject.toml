@@ -5,15 +5,19 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "alembic",
-    "click",
-    "fastapi[standard]",
-    "httpx",
-    "hvac",
-    "psycopg",
-    "python-dotenv",
-    "rich",
-    "sqlalchemy",
+  "alembic",
+  "authlib",
+  "click",
+  "fastapi[standard]",
+  "httpx",
+  "hvac",
+  "itsdangerous",
+  "psycopg",
+  "pyjwt",
+  "python-dotenv",
+  "python-keycloak",
+  "rich",
+  "sqlalchemy",
 ]
 
 [dependency-groups]

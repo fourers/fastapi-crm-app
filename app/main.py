@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.client import router as client
 from app.api.login import router as login
@@ -8,6 +9,13 @@ from app.api.user import router as user
 load_dotenv()
 
 app = FastAPI()
+
+app.add_middleware(
+    SessionMiddleware,
+    secret_key="super-secret",
+    https_only=False,
+    same_site="lax",
+)
 
 app.include_router(login)
 

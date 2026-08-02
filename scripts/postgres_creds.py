@@ -6,7 +6,7 @@ from hvac import Client
 
 
 @click.command()
-@click.argument("user", type=click.STRING)
+@click.argument("user", default="admin", type=click.STRING)
 def lookup_creds(user: str) -> None:
     client = Client()
     creds = client.secrets.kv.v2.read_secret_version(

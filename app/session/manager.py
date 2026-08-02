@@ -1,77 +1,64 @@
+import logging
 import secrets
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Security
-from fastapi.security import APIKeyCookie, OAuth2PasswordBearer
+from fastapi import Depends, HTTPException
+from fastapi.security import APIKeyCookie
 
 from app.models.user import User
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class CachedSession:
     id: int
     username: str
+    expiration: datetime
+    refresh_token: str
 
 
 sessions: dict[str, CachedSession] = {}
 
 
-def create_session(user: User) -> str:
+def create_session(user: User, expiration: datetime, refresh_token: str) -> str:
     session_id = secrets.token_urlsafe(32)
 
     sessions[session_id] = CachedSession(
-        id=user.id,
-        username=user.username,
+        user.id,
+        user.username,
+        expiration,
+        refresh_token,
     )
-
     return session_id
 
 
-session_cookie = APIKeyCookie(name="session", auto_error=False)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+def delete_session(session_id: str | None) -> CachedSession | None:
+    return sessions.pop(session_id, None)
+
+
+session_id_cookie = APIKeyCookie(name="session_id", auto_error=False)
 
 
 def get_optional_session(
-    cookie: Annotated[str | None, Security(session_cookie)],
-    token: Annotated[str | None, Depends(oauth2_scheme)],
+    session_id: Annotated[str, Depends(session_id_cookie)],
 ) -> CachedSession | None:
-    if token is not None:
-        return sessions.get(token)
-
-    if cookie is not None:
-        return sessions.get(cookie)
-
-    return None
+    logger.info(f"Sessions: {sessions}")
+    now = datetime.now(timezone.utc)
+    session = sessions.get(session_id)
+    if session is not None and session.expiration > now:
+        logger.info(f"Session found: {session}")
+        return session
+    else:
+        logger.warning(f"No session found for {session_id}: {session}")
+        return None
 
 
 def get_session(
-    cookie: Annotated[str | None, Security(session_cookie)],
-    token: Annotated[str | None, Depends(oauth2_scheme)],
+    session: Annotated[CachedSession | None, Depends(get_optional_session)],
 ) -> CachedSession:
-    data = None
-    if token is not None:
-        data = sessions.get(token)
-    elif cookie is not None:
-        data = sessions.get(cookie)
-
-    if data is None:
-        raise HTTPException(401)
-
-    return data
-
-
-def get_session_cookie(
-    cookie: Annotated[str | None, Security(session_cookie)],
-) -> str | None:
-    return cookie
-
-
-def get_session_token(
-    token: Annotated[str | None, Depends(oauth2_scheme)],
-) -> str | None:
-    return token
-
-
-def drop_session(session_id: str | None):
-    sessions.pop(session_id, None)
+    if session is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    return session

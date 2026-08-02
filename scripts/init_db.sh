@@ -1,22 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+source scripts/shared/admin_constants.sh
+source scripts/shared/vault_helper.sh
+
 function random_password() {
   openssl rand -base64 24
 }
-
-function write_creds() {
-  local -r username="${1:-}"
-  local -r password="${2:-}"
-  secret_path="myapp/${username}"
-  echo "Writing secret: ${secret_path}"
-  curl -fsS -X POST "${VAULT_ADDR}/v1/secret/data/${secret_path}" \
-    -H "X-Vault-Token: ${VAULT_TOKEN}" \
-    -H "Content-Type: application/json" \
-    -d "{\"data\":{\"username\":\"${username}\",\"password\":\"${password}\"}}"
-}
-
-apt-get update && apt-get install -y --no-install-recommends curl
 
 write_creds admin "${PGPASSWORD}"
 

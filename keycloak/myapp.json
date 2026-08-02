@@ -1,0 +1,32 @@
+{
+  "realm": "myapp",
+  "enabled": true,
+  "displayName": "Local Development",
+
+  "clients": [
+    {
+      "clientId": "fastapi",
+      "name": "Fast API CRM App",
+      "enabled": true,
+
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+
+      "redirectUris": [
+        "http://localhost:8000/*"
+      ],
+
+      "webOrigins": [
+        "http://localhost:8000"
+      ],
+
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+
+      "protocol": "openid-connect"
+    }
+  ]
+}

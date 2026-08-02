@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.user import User
 from app.session.manager import CachedSession, get_session
+from app.utils.keycloak import create_user as create_keycloak_user
 
 router = APIRouter()
 
@@ -30,7 +31,8 @@ def get_users(
 
 class UserUpdate(BaseModel):
     email: str | None = None
-    name: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
 
 
 class UserCreate(UserUpdate):
@@ -42,6 +44,9 @@ def create_user(
     payload: UserCreate,
     db: Annotated[Session, Depends(get_db)],
 ):
+    create_keycloak_user(
+        payload.username, payload.email, payload.first_name, payload.last_name
+    )
     user_dict = payload.model_dump(exclude_unset=True)
 
     user = User(**user_dict)
