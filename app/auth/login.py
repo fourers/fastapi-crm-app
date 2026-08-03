@@ -1,5 +1,4 @@
 import logging
-from dataclasses import asdict
 from datetime import datetime, timedelta, timezone
 from functools import cache
 from typing import Annotated
@@ -18,6 +17,7 @@ from app.session.manager import (
 )
 from app.session.user import get_user_by_id
 from app.utils.keycloak import settings
+from app.utils.traceback import format_exception
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,11 @@ def _create_session_from_claims(user: User, claims: dict) -> tuple[str, datetime
 
 @router.get("/callback", name="keycloak_callback")
 async def keycloak_callback(request: Request):
-    token = await oauth_client().keycloak.authorize_access_token(request)
+    try:
+        token = await oauth_client().keycloak.authorize_access_token(request)
+    except Exception as e:
+        request.session["error"] = format_exception(e)
+        return RedirectResponse(request.url_for("error-page"))
 
     sub = token.get("userinfo", {}).get("sub")
     user = get_user_by_id(sub)
@@ -108,4 +112,4 @@ async def logout(request: Request):
 async def current_session(
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    return asdict(session)
+    return session.model_dump()

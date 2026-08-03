@@ -1,20 +1,19 @@
 import logging
 import secrets
-from dataclasses import dataclass
 from datetime import datetime
+
+from pydantic import BaseModel
 
 from app.models.user import User
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class UserSession:
+class UserSession(BaseModel):
     id: int
     username: str
 
 
-@dataclass
 class CachedSession(UserSession):
     id: int
     username: str
@@ -32,11 +31,11 @@ def create_session(
     session_id = secrets.token_urlsafe(32)
 
     sessions[session_id] = CachedSession(
-        user.id,
-        user.username,
-        expiration,
-        refresh_token,
-        id_token,
+        id=user.id,
+        username=user.username,
+        expiration=expiration,
+        refresh_token=refresh_token,
+        id_token=id_token,
     )
     return session_id
 
@@ -50,4 +49,4 @@ def delete_session(session_id: str | None) -> CachedSession | None:
 
 
 def create_basic_session(user: User) -> UserSession:
-    return UserSession(user.id, user.username)
+    return UserSession(id=user.id, username=user.username)
