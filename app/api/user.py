@@ -12,7 +12,15 @@ from app.utils.keycloak import create_user as create_keycloak_user
 router = APIRouter()
 
 
-@router.get("/user")
+class UserResponse(BaseModel):
+    id: int
+    email: str | None
+    username: str
+    first_name: str | None
+    last_name: str | None
+
+
+@router.get("/user", response_model=list[UserResponse])
 def get_users(
     db: Annotated[Session, Depends(get_db)],
 ):
@@ -29,7 +37,7 @@ class UserCreate(UserUpdate):
     username: str
 
 
-@router.post("/user")
+@router.post("/user", response_model=UserResponse)
 def create_user(
     payload: UserCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -47,7 +55,7 @@ def create_user(
     return user
 
 
-@router.patch("/user/{user_id}")
+@router.patch("/user/{user_id}", response_model=UserResponse)
 def update_user(
     user_id: Annotated[int, Path()],
     payload: UserUpdate,

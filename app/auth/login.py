@@ -5,7 +5,6 @@ from functools import cache
 from typing import Annotated
 from urllib.parse import urlencode
 
-import httpx
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse

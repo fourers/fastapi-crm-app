@@ -14,7 +14,15 @@ from app.session.manager import UserSession
 router = APIRouter()
 
 
-@router.get("/client")
+class ClientResponse(BaseModel):
+    id: int
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    owner_id: int | None
+
+
+@router.get("/client", response_model=list[ClientResponse])
 def get_clients(
     db: Annotated[Session, Depends(get_db)],
     session: Annotated[UserSession, Depends(get_session)],
@@ -30,7 +38,7 @@ class ClientCreate(BaseModel):
     owner_id: int | None = None
 
 
-@router.post("/client")
+@router.post("/client", response_model=ClientResponse)
 def create_client(
     payload: ClientCreate,
     db: Annotated[Session, Depends(get_db)],
@@ -49,7 +57,7 @@ def create_client(
     return client
 
 
-@router.patch("/client/{client_id}")
+@router.patch("/client/{client_id}", response_model=ClientResponse)
 def update_client(
     client_id: Annotated[int, Path()],
     payload: ClientCreate,

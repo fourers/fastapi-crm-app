@@ -82,8 +82,9 @@ class TestSession:
             f"{TEST_ENDPOINT}/api/user",
             json={
                 "username": username,
-                "name": f"{first_name} {last_name}",
                 "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
             },
             headers=self.headers,
         )
