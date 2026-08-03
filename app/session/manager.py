@@ -9,7 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class CachedSession:
+class UserSession:
+    id: int
+    username: str
+
+
+@dataclass
+class CachedSession(UserSession):
     id: int
     username: str
     expiration: datetime
@@ -41,3 +47,7 @@ def get_session(session_id: str) -> CachedSession | None:
 
 def delete_session(session_id: str | None) -> CachedSession | None:
     return sessions.pop(session_id, None)
+
+
+def create_basic_session(user: User) -> UserSession:
+    return UserSession(user.id, user.username)

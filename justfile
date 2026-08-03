@@ -1,3 +1,6 @@
+cli *ARGS:
+    uv run test/cli.py {{ARGS}}
+
 dev:
     scripts/start.sh
 

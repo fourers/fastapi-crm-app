@@ -5,11 +5,11 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth.handler import get_session
 from app.database.admin import get_db
 from app.database.rls import apply_rls
 from app.models.client import Client
-from app.session.handler import get_session
-from app.session.manager import CachedSession
+from app.session.manager import UserSession
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ router = APIRouter()
 @router.get("/client")
 def get_clients(
     db: Annotated[Session, Depends(get_db)],
-    session: Annotated[CachedSession, Depends(get_session)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     apply_rls(db, session)
     return db.scalars(select(Client).order_by(Client.id)).all()
@@ -34,7 +34,7 @@ class ClientCreate(BaseModel):
 def create_client(
     payload: ClientCreate,
     db: Annotated[Session, Depends(get_db)],
-    session: Annotated[CachedSession, Depends(get_session)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     apply_rls(db, session)
     client_dict = payload.model_dump(exclude_unset=True)
@@ -54,7 +54,7 @@ def update_client(
     client_id: Annotated[int, Path()],
     payload: ClientCreate,
     db: Annotated[Session, Depends(get_db)],
-    session: Annotated[CachedSession, Depends(get_session)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     apply_rls(db, session)
     client_dict = payload.model_dump(exclude_unset=True)

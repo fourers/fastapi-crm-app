@@ -5,15 +5,15 @@ from fastapi import Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.auth.handler import get_session
 from app.database.admin import get_admin_session
-from app.session.handler import get_session
-from app.session.manager import CachedSession
+from app.session.manager import UserSession
 
 ADMIN_ID = 1
 
 
 def get_rls_db(
-    session: Annotated[CachedSession, Depends(get_session)],
+    session: Annotated[UserSession, Depends(get_session)],
 ) -> Generator[Session, None, None]:
     db = get_admin_session()()
     try:
@@ -31,7 +31,7 @@ def get_rls_db(
         db.close()
 
 
-def apply_rls(db: Session, session: CachedSession):
+def apply_rls(db: Session, session: UserSession):
     if session.id != ADMIN_ID:
         db.execute(
             text("SELECT set_config('app.current_user_id', :user_id, true)"),

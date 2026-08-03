@@ -21,6 +21,7 @@ class TestSession:
         self.client = httpx.Client()
         self.username = username
         self.password = password
+        self.access_token = "xxx"
 
     def __enter__(self):
         self.login(self.username, self.password)
@@ -43,22 +44,18 @@ class TestSession:
         )
         token_resp.raise_for_status()
         tokens = token_resp.json()
+        self.access_token = tokens["access_token"]
 
-        login_resp = self.client.post(
-            f"{TEST_ENDPOINT}/auth/login",
-            json={
-                "access_token": tokens["access_token"],
-                "refresh_token": tokens.get("refresh_token", ""),
-                "id_token": tokens.get("id_token", ""),
-                "expires_in": tokens["expires_in"],
-            },
-        )
-        login_resp.raise_for_status()
+    @property
+    def headers(self):
+        return {"Authorization": f"Bearer {self.access_token}"}
 
     def logout(self) -> None:
-        response = self.client.post(f"{TEST_ENDPOINT}/auth/logout")
-        if not response.is_redirect:
-            response.raise_for_status()
+        response = self.client.post(
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/logout",
+            headers=self.headers,
+        )
+        response.raise_for_status()
 
     def create_random_client(self) -> dict:
         first_name = fake.first_name()
@@ -71,6 +68,7 @@ class TestSession:
                 "last_name": last_name,
                 "email": email,
             },
+            headers=self.headers,
         )
         response.raise_for_status()
         return response.json()
@@ -87,17 +85,24 @@ class TestSession:
                 "name": f"{first_name} {last_name}",
                 "email": email,
             },
+            headers=self.headers,
         )
         response.raise_for_status()
         return response.json()
 
     def get_clients(self) -> list[dict]:
-        response = self.client.get(f"{TEST_ENDPOINT}/api/client")
+        response = self.client.get(
+            f"{TEST_ENDPOINT}/api/client",
+            headers=self.headers,
+        )
         response.raise_for_status()
         return response.json()
 
     def get_users(self) -> list[dict]:
-        response = self.client.get(f"{TEST_ENDPOINT}/api/user")
+        response = self.client.get(
+            f"{TEST_ENDPOINT}/api/user",
+            headers=self.headers,
+        )
         response.raise_for_status()
         return response.json()
 

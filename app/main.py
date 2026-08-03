@@ -4,8 +4,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.api.client import router as client
-from app.api.login import router as login
 from app.api.user import router as user
+from app.auth.login import router as login
+from app.pages.home import router as home
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
+app.include_router(home)
 app.include_router(login)
 
 api_router = APIRouter(prefix="/api", tags=["api"])

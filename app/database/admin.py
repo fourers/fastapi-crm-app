@@ -1,4 +1,5 @@
 from collections.abc import Generator
+from contextlib import contextmanager
 from functools import cache
 
 from sqlalchemy import create_engine
@@ -25,3 +26,21 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+@contextmanager
+def _get_admin_db() -> Generator[Session, None, None]:
+    db = get_admin_session()()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@contextmanager
+def provide_db(db: Session | None) -> Generator[Session, None, None]:
+    if db is not None:
+        yield db
+    else:
+        with _get_admin_db() as admin_db:
+            yield admin_db
