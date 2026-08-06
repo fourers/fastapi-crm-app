@@ -59,88 +59,6 @@ class TestSession:
         )
         response.raise_for_status()
 
-    def create_random_client(self) -> dict:
-        first_name = fake.first_name()
-        last_name = fake.last_name()
-        email = f"{first_name}.{last_name}@example.com".lower()
-        response = self.client.post(
-            f"{TEST_ENDPOINT}/api/client",
-            json={
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": email,
-            },
-            headers=self.headers,
-        )
-        response.raise_for_status()
-        return response.json()
-
-    def create_random_user(self) -> dict:
-        first_name = fake.first_name()
-        last_name = fake.last_name()
-        username = f"{first_name[0]}{last_name}".lower()
-        email = f"{first_name}.{last_name}@example.com".lower()
-        response = self.client.post(
-            f"{TEST_ENDPOINT}/api/user",
-            json={
-                "username": username,
-                "email": email,
-                "first_name": first_name,
-                "last_name": last_name,
-            },
-            headers=self.headers,
-        )
-        response.raise_for_status()
-        return response.json()
-
-    def get_clients(self) -> list[dict]:
-        response = self.client.get(
-            f"{TEST_ENDPOINT}/api/client",
-            headers=self.headers,
-        )
-        response.raise_for_status()
-        return response.json()
-
-    def get_users(self) -> list[dict]:
-        response = self.client.get(
-            f"{TEST_ENDPOINT}/api/user",
-            headers=self.headers,
-        )
-        response.raise_for_status()
-        return response.json()
-
-    def me(self) -> dict:
-        response = self.client.get(f"{TEST_ENDPOINT}/auth/me", headers=self.headers)
-        response.raise_for_status()
-        return response.json()
-
-    def introspect(self) -> dict:
-        response = self.client.post(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token/introspect",
-            data={
-                "client_id": KC_CLIENT_ID,
-                "client_secret": KC_CLIENT_SECRET,
-                "token": self.access_token,
-                "token_type_hint": "access_token",
-            },
-        )
-        response.raise_for_status()
-        return response.json()
-
-    def decode(self) -> dict:
-        jwk_keys = PyJWKClient(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/certs"
-        )
-        return {
-            "header": jwt.get_unverified_header(self.access_token),
-            "payload": jwt.decode(
-                self.access_token,
-                key=jwk_keys.get_signing_key_from_jwt(self.access_token),
-                algorithms=["RS256"],
-                options={"verify_signature": False},
-            ),
-        }
-
 
 def user_password_options(func):
     func = click.option("--user", default="admin", type=click.STRING)(func)
@@ -156,56 +74,108 @@ def cli():
 @user_password_options
 def random_client(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.create_random_client()
-        print_json(data=response)
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        response = session.client.post(
+            f"{TEST_ENDPOINT}/api/client",
+            json={
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": f"{first_name}.{last_name}@example.com".lower(),
+            },
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def random_user(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.create_random_user()
-        print_json(data=response)
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        response = session.client.post(
+            f"{TEST_ENDPOINT}/api/user",
+            json={
+                "username": f"{first_name[0]}{last_name}".lower(),
+                "email": f"{first_name}.{last_name}@example.com".lower(),
+                "first_name": first_name,
+                "last_name": last_name,
+            },
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def list_clients(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.get_clients()
-        print_json(data=response)
+        response = session.client.get(
+            f"{TEST_ENDPOINT}/api/client",
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def list_users(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.get_users()
-        print_json(data=response)
+        response = session.client.get(
+            f"{TEST_ENDPOINT}/api/user",
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def me(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.me()
-        print_json(data=response)
+        response = session.client.get(f"{TEST_ENDPOINT}/auth/me", headers=session.headers)
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def introspect(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.introspect()
-        print_json(data=response)
+        response = session.client.post(
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token/introspect",
+            data={
+                "client_id": KC_CLIENT_ID,
+                "client_secret": KC_CLIENT_SECRET,
+                "token": session.access_token,
+                "token_type_hint": "access_token",
+            },
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
 
 
 @cli.command()
 @user_password_options
 def decode(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.decode()
-        print_json(data=response)
+        jwk_keys = PyJWKClient(
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/certs"
+        )
+        data = {
+            "header": jwt.get_unverified_header(session.access_token),
+            "payload": jwt.decode(
+                session.access_token,
+                key=jwk_keys.get_signing_key_from_jwt(session.access_token),
+                algorithms=["RS256"],
+                options={"verify_signature": False},
+            ),
+        }
+        print_json(data=data)
 
 
 if __name__ == "__main__":
