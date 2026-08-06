@@ -17,8 +17,8 @@ from app.auth.session import (
 from app.auth.session import (
     get_session as get_user_session,
 )
+from app.auth.user import get_user_by_id
 from app.config.keycloak import settings
-from app.session.user import get_user_by_id
 from app.utils.hashlib import sha_256
 from app.utils.keycloak import get_oauth2_client
 

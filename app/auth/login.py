@@ -16,7 +16,7 @@ from app.auth.session import (
     create_session,
     delete_session,
 )
-from app.session.user import get_user_by_id
+from app.auth.user import get_user_by_id
 from app.utils.traceback import redirect_error_page
 
 logger = logging.getLogger(__name__)

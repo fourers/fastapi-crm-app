@@ -6,10 +6,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.handler import get_session
+from app.auth.session import UserSession
 from app.database.admin import get_db
 from app.database.rls import apply_rls
 from app.models.client import Client
-from app.session.manager import UserSession
 
 router = APIRouter()
 

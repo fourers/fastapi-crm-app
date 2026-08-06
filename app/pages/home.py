@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request
 
 from app.auth.handler import get_optional_cookie_session
+from app.auth.session import UserSession
 from app.config.templates import templates
-from app.session.manager import UserSession
 
 router = APIRouter(include_in_schema=False)
 

@@ -6,8 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.auth.handler import get_session
+from app.auth.session import UserSession
 from app.database.admin import get_admin_session
-from app.session.manager import UserSession
 
 ADMIN_ID = 1
 
