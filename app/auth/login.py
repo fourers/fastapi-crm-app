@@ -1,115 +1,117 @@
 import logging
+import secrets
 from datetime import datetime, timedelta, timezone
-from functools import cache
 from typing import Annotated
-from urllib.parse import urlencode
 
-from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.base_client.errors import OAuthError
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 
-from app.auth.handler import get_session
-from app.models.user import User
-from app.session.manager import (
+from app.auth.client import get_oauth_client
+from app.auth.handler import get_cookie_session, get_session
+from app.auth.session import (
     UserSession,
     create_session,
     delete_session,
 )
 from app.session.user import get_user_by_id
-from app.utils.keycloak import settings
-from app.utils.traceback import format_exception
+from app.utils.traceback import redirect_error_page
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", include_in_schema=False)
 
 
-@cache
-def oauth_client():
-    oauth = OAuth()
-
-    oauth.register(
-        name="keycloak",
-        client_id=settings.client_id,
-        server_metadata_url=(
-            f"{settings.server_url}/realms/{settings.realm}/.well-known/openid-configuration"
-        ),
-        client_kwargs={
-            "scope": "openid profile email",
-            "code_challenge_method": "S256",
-        },
-    )
-    return oauth
-
-
 @router.get("/login", name="login")
 async def keycloak_login(request: Request):
-    return await oauth_client().keycloak.authorize_redirect(
+    return await get_oauth_client().authorize_redirect(
         request,
-        request.url_for("keycloak_callback"),
+        request.url_for("login_callback"),
     )
 
 
-def _create_session_from_claims(user: User, claims: dict) -> tuple[str, datetime]:
-    expires_in = claims["expires_in"]
-    expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
-    session_id = create_session(
-        user, expiration, claims["refresh_token"], claims["id_token"]
-    )
-    return session_id, expiration
-
-
-@router.get("/callback", name="keycloak_callback")
-async def keycloak_callback(request: Request):
-    try:
-        token = await oauth_client().keycloak.authorize_access_token(request)
-    except Exception as e:
-        request.session["error"] = format_exception(e)
-        return RedirectResponse(request.url_for("error-page"))
-
+def _create_session_from_claims(request: Request, token: dict) -> RedirectResponse:
     sub = token.get("userinfo", {}).get("sub")
     user = get_user_by_id(sub)
 
     if not user:
-        request.session["error"] = f"Unable to find user: {sub}"
-        return RedirectResponse(request.url_for("error-page"))
+        return redirect_error_page(request, f"Unable to find user: {sub}")
 
-    session_id, expiration = _create_session_from_claims(user, token)
+    expires_in = token["expires_in"]
+    expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    session_id = secrets.token_urlsafe(32)
+    create_session(
+        "cookie",
+        UserSession(
+            session_id=session_id,
+            id=user.id,
+            username=user.username,
+            expiration=expiration,
+            refresh_token=token["refresh_token"],
+            id_token=token["id_token"],
+        ),
+    )
+    request.session.clear()
+
     response = RedirectResponse("/")
     response.set_cookie(
         "session_id",
         session_id,
         expires=expiration,
-        max_age=token["expires_in"],
+        max_age=expires_in,
         httponly=True,
         secure=True,
     )
-    request.session.clear()
     return response
 
 
-@router.post("/logout", name="logout")
-async def logout(request: Request):
-    session_id = request.cookies.get("session_id")
-    session = delete_session(session_id)
+@router.get("/login/callback", name="login_callback")
+async def login_callback(request: Request):
+    try:
+        token = await get_oauth_client().authorize_access_token(request)
+    except OAuthError as e:
+        return redirect_error_page(request, e.description)
 
-    metadata = await oauth_client().keycloak.load_server_metadata()
-    params = {
-        "post_logout_redirect_uri": str(request.url_for("home")),
-        "client_id": settings.client_id,
-    }
-    if session is not None:
-        params["id_token_hint"] = session.id_token
-    response = RedirectResponse(
-        f"{metadata['end_session_endpoint']}?{urlencode(params)}",
-        status_code=303,
+    return _create_session_from_claims(request, token)
+
+
+@router.post("/logout", name="logout")
+async def logout(
+    request: Request, session: Annotated[UserSession, Depends(get_cookie_session)]
+):
+    return await get_oauth_client().logout_redirect(
+        request,
+        request.url_for("logout_callback"),
+        session.id_token,
     )
+
+
+@router.get("/logout/callback", name="logout_callback")
+async def logout_callback(
+    request: Request, session: Annotated[UserSession, Depends(get_cookie_session)]
+):
+    try:
+        await get_oauth_client().validate_logout_response(request)
+    except OAuthError as e:
+        return redirect_error_page(request, e.description)
+
+    delete_session("cookie", session.session_id)
+    request.session.clear()
+
+    response = RedirectResponse(request.url_for("home"))
     response.delete_cookie("session_id", httponly=True, secure=True)
     return response
 
 
-@router.get("/me")
+class SessionResponse(BaseModel):
+    id: int
+    username: str
+    expiration: datetime
+
+
+@router.get("/me", response_model=SessionResponse)
 async def current_session(
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    return session.model_dump()
+    return session

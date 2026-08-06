@@ -14,7 +14,13 @@ class Settings:
 
     @property
     def client_id(self):
-        return os.environ["KC_CLIENT_ID"]
+        creds = get_secret("myapp/keycloak_client")
+        return creds["username"]
+
+    @property
+    def client_secret(self):
+        creds = get_secret("myapp/keycloak_client")
+        return creds["password"]
 
     @property
     def redirect_uri(self):

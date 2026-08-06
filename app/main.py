@@ -7,7 +7,9 @@ from app.api.client import router as client
 from app.api.user import router as user
 from app.auth.login import router as login
 from app.pages.home import router as home
+from app.utils.logging import configure_logging
 
+configure_logging()
 load_dotenv()
 
 app = FastAPI()

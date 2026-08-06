@@ -1,5 +1,3 @@
-import os
-
 import click
 import httpx
 from dotenv import load_dotenv
@@ -9,9 +7,6 @@ from rich import print_json
 load_dotenv()
 
 TEST_ENDPOINT = "http://127.0.0.1:8000"
-KC_URL = os.environ["KC_URL"]
-KC_REALM = os.environ["KC_REALM"]
-KC_CLIENT_ID = os.environ["KC_CLIENT_ID"]
 
 fake = Faker()
 
@@ -23,6 +18,13 @@ class TestSession:
         self.password = password
         self.access_token = "xxx"
 
+        from app.config.keycloak import settings
+
+        self.keycloak_url = settings.server_url
+        self.realm = settings.realm
+        self.client_id = settings.client_id
+        self.client_secret = settings.client_secret
+
     def __enter__(self):
         self.login(self.username, self.password)
         return self
@@ -33,10 +35,11 @@ class TestSession:
 
     def login(self, username: str, password: str) -> None:
         token_resp = self.client.post(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token",
+            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/token",
             data={
                 "grant_type": "password",
-                "client_id": KC_CLIENT_ID,
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
                 "username": username,
                 "password": password,
                 "scope": "openid profile email",
@@ -52,7 +55,7 @@ class TestSession:
 
     def logout(self) -> None:
         response = self.client.post(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/logout",
+            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/logout",
             headers=self.headers,
         )
         response.raise_for_status()
@@ -107,6 +110,24 @@ class TestSession:
         response.raise_for_status()
         return response.json()
 
+    def me(self) -> dict:
+        response = self.client.get(f"{TEST_ENDPOINT}/auth/me", headers=self.headers)
+        response.raise_for_status()
+        return response.json()
+
+    def introspect(self) -> dict:
+        response = self.client.post(
+            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/token/introspect",
+            data={
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "token": self.access_token,
+                "token_type_hint": "access_token",
+            },
+        )
+        response.raise_for_status()
+        return response.json()
+
 
 def user_password_options(func):
     func = click.option("--user", default="admin", type=click.STRING)(func)
@@ -147,6 +168,22 @@ def list_clients(user: str, password: str):
 def list_users(user: str, password: str):
     with TestSession(user, password) as session:
         response = session.get_users()
+        print_json(data=response)
+
+
+@cli.command()
+@user_password_options
+def me(user: str, password: str):
+    with TestSession(user, password) as session:
+        response = session.me()
+        print_json(data=response)
+
+
+@cli.command()
+@user_password_options
+def introspect(user: str, password: str):
+    with TestSession(user, password) as session:
+        response = session.introspect()
         print_json(data=response)
 
 

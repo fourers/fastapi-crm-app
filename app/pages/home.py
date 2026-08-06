@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
-from app.auth.handler import get_cookie_session
+from app.auth.handler import get_optional_cookie_session
 from app.config.templates import templates
 from app.session.manager import UserSession
 
@@ -12,7 +12,7 @@ router = APIRouter(include_in_schema=False)
 @router.get("/", include_in_schema=False, name="home")
 def home(
     request: Request,
-    session: Annotated[UserSession | None, Depends(get_cookie_session)],
+    session: Annotated[UserSession | None, Depends(get_optional_cookie_session)],
 ):
     if session is None:
         return templates.TemplateResponse(
@@ -24,7 +24,7 @@ def home(
         )
 
 
-@router.get("/error-page", include_in_schema=False, name="error-page")
+@router.get("/error", include_in_schema=False, name="error-page")
 def error_page(request: Request):
     error = request.session.get("error", "Unexpected error...")
     return templates.TemplateResponse(

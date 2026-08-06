@@ -1,5 +1,7 @@
 from functools import cache
 
+from authlib.integrations.httpx_client import OAuth2Client
+
 from app.config.keycloak import settings
 from keycloak import KeycloakAdmin, KeycloakOpenIDConnection
 
@@ -40,3 +42,11 @@ def create_user(
 def delete_user(username: str):
     client = _get_admin_client()
     client.delete_user(user_id=username)
+
+
+@cache
+def get_oauth2_client() -> OAuth2Client:
+    return OAuth2Client(
+        settings.client_id,
+        settings.client_secret,
+    )

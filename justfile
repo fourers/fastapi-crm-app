@@ -1,8 +1,11 @@
 cli *ARGS:
-    uv run test/cli.py {{ARGS}}
+    uv run -m examples.cli {{ARGS}}
 
 dev:
     scripts/start.sh
+
+format:
+    scripts/format.sh
 
 init:
     scripts/init.sh
