@@ -10,6 +10,7 @@ from jwt import PyJWKClient
 
 from app.auth.client import get_oauth_client
 from app.auth.session import (
+    SessionType,
     UserSession,
     create_session,
 )
@@ -33,6 +34,23 @@ async def _get_jwk_keys() -> PyJWKClient:
     return PyJWKClient(endpoint)
 
 
+async def _validate_jwt(token: str) -> None:
+    jwk_keys = await _get_jwk_keys()
+    jwt.decode(
+        token,
+        key=jwk_keys.get_signing_key_from_jwt(token),
+        algorithms=["RS256"],
+        options={
+            "require": ["iss", "aud", "exp"],
+            "verify_iss": True,
+            "verify_aud": True,
+            "verify_exp": True,
+        },
+        issuer=f"{settings.server_url}/realms/{settings.realm}",
+        audience=settings.client_id,
+    )
+
+
 async def _introspect_token(token: str) -> dict:
     metadata = await get_oauth_client().load_server_metadata()
     endpoint = metadata["introspection_endpoint"]
@@ -43,55 +61,50 @@ async def _introspect_token(token: str) -> dict:
     return response.json()
 
 
+def _create_session_from_claims(claims: dict, token: str) -> UserSession | None:
+    keycloak_id = claims["sub"]
+    user = get_user_by_id(str(keycloak_id))
+    if user:
+        expiration = min(
+            datetime.fromtimestamp(claims["exp"], timezone.utc),
+            datetime.now(timezone.utc) + timedelta(seconds=60),
+        )
+        session = UserSession(
+            session_id=sha_256(token),
+            type=SessionType.BEARER,
+            id=user.id,
+            username=user.username,
+            expiration=expiration,
+            refresh_token="xxx",
+            id_token="xxx",
+        )
+        create_session(session)
+        return session
+    else:
+        logger.warning(f"Unable to find user: {keycloak_id}")
+        return None
+
+
 async def _validate_bearer_token(token: str) -> UserSession | None:
     try:
-        jwk_keys = await _get_jwk_keys()
-        jwt.decode(
-            token,
-            key=jwk_keys.get_signing_key_from_jwt(token),
-            algorithms=["RS256"],
-            options={
-                "require": ["iss", "aud", "exp"],
-                "verify_iss": True,
-                "verify_aud": True,
-                "verify_exp": True,
-            },
-            issuer=f"{settings.server_url}/realms/{settings.realm}",
-            audience=settings.client_id,
-        )
+        await _validate_jwt(token)
     except Exception:
         logger.warning("Failed to validate token", exc_info=True)
         return None
 
+    session = get_user_session(SessionType.BEARER, sha_256(token))
+    if session is not None:
+        return session
+
     response = await _introspect_token(token)
     active = response["active"]
-    keycloak_id = response["sub"]
-
     if active:
-        user = get_user_by_id(str(keycloak_id))
-        if user:
-            session = UserSession(
-                session_id=sha_256(token),
-                id=user.id,
-                username=user.username,
-                expiration=datetime.now(timezone.utc) + timedelta(seconds=60),
-                refresh_token="xxx",
-                id_token="xxx",
-            )
-            create_session("bearer", session)
-            return session
-        else:
-            logger.warning(f"Unable to find user: {keycloak_id}")
+        return _create_session_from_claims(response, token)
     return None
 
 
-def _validate_session(session: UserSession | None) -> bool:
-    return session is not None and session.expiration > datetime.now(timezone.utc)
-
-
-def _validate_session_id(session_id: str):
-    session = get_user_session("cookie", session_id)
-    return session if _validate_session(session) else None
+def _validate_session_id(session_id: str) -> UserSession | None:
+    return get_user_session(SessionType.COOKIE, session_id)
 
 
 def session_id_cookie(request: Request) -> str | None:

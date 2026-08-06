@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from app.auth.client import get_oauth_client
 from app.auth.handler import get_cookie_session, get_session
 from app.auth.session import (
+    SessionType,
     UserSession,
     create_session,
     delete_session,
@@ -42,9 +43,9 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
     session_id = secrets.token_urlsafe(32)
     create_session(
-        "cookie",
         UserSession(
             session_id=session_id,
+            type=SessionType.COOKIE,
             id=user.id,
             username=user.username,
             expiration=expiration,
@@ -96,7 +97,7 @@ async def logout_callback(
     except OAuthError as e:
         return redirect_error_page(request, e.description)
 
-    delete_session("cookie", session.session_id)
+    delete_session(SessionType.COOKIE, session.session_id)
     request.session.clear()
 
     response = RedirectResponse(request.url_for("home"))
