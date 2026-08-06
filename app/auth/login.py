@@ -1,4 +1,3 @@
-import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -18,8 +17,6 @@ from app.auth.session import (
 )
 from app.auth.user import get_user_by_id
 from app.utils.traceback import redirect_error_page
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", include_in_schema=False)
 

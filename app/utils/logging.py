@@ -10,6 +10,8 @@ def configure_logging() -> None:
     root = logging.getLogger()
     root.setLevel(logging.INFO)
 
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     handler = logging.FileHandler(str(path))
     handler.setFormatter(
         logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
