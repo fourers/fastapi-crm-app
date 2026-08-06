@@ -1,7 +1,9 @@
 import click
 import httpx
+import jwt
 from dotenv import load_dotenv
 from faker import Faker
+from jwt import PyJWKClient
 from rich import print_json
 
 load_dotenv()
@@ -128,6 +130,20 @@ class TestSession:
         response.raise_for_status()
         return response.json()
 
+    def decode(self) -> dict:
+        jwk_keys = PyJWKClient(
+            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/certs"
+        )
+        return {
+            "header": jwt.get_unverified_header(self.access_token),
+            "payload": jwt.decode(
+                self.access_token,
+                key=jwk_keys.get_signing_key_from_jwt(self.access_token),
+                algorithms=["RS256"],
+                options={"verify_signature": False},
+            ),
+        }
+
 
 def user_password_options(func):
     func = click.option("--user", default="admin", type=click.STRING)(func)
@@ -184,6 +200,14 @@ def me(user: str, password: str):
 def introspect(user: str, password: str):
     with TestSession(user, password) as session:
         response = session.introspect()
+        print_json(data=response)
+
+
+@cli.command()
+@user_password_options
+def decode(user: str, password: str):
+    with TestSession(user, password) as session:
+        response = session.decode()
         print_json(data=response)
 
 
