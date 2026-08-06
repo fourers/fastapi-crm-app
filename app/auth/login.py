@@ -18,11 +18,11 @@ from app.auth.session import (
 from app.auth.user import get_user_by_id
 from app.utils.traceback import redirect_error_page
 
-router = APIRouter(prefix="/auth", include_in_schema=False)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.get("/login", name="login")
-async def keycloak_login(request: Request):
+@router.get("/login", name="login", include_in_schema=False)
+async def keycloak_login(request: Request, include_in_schema=False):
     return await get_oauth_client().authorize_redirect(
         request,
         request.url_for("login_callback"),
@@ -64,7 +64,7 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     return response
 
 
-@router.get("/login/callback", name="login_callback")
+@router.get("/login/callback", name="login_callback", include_in_schema=False)
 async def login_callback(request: Request):
     try:
         token = await get_oauth_client().authorize_access_token(request)
@@ -74,7 +74,7 @@ async def login_callback(request: Request):
     return _create_session_from_claims(request, token)
 
 
-@router.post("/logout", name="logout")
+@router.post("/logout", name="logout", include_in_schema=False)
 async def logout(
     request: Request, session: Annotated[UserSession, Depends(get_cookie_session)]
 ):
@@ -85,7 +85,7 @@ async def logout(
     )
 
 
-@router.get("/logout/callback", name="logout_callback")
+@router.get("/logout/callback", name="logout_callback", include_in_schema=False)
 async def logout_callback(
     request: Request, session: Annotated[UserSession, Depends(get_cookie_session)]
 ):
