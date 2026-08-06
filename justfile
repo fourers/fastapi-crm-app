@@ -1,5 +1,5 @@
 cli *ARGS:
-    uv run -m examples.cli {{ARGS}}
+    uv run examples/cli.py {{ARGS}}
 
 dev:
     scripts/start.sh

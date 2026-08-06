@@ -8,7 +8,11 @@ from rich import print_json
 
 load_dotenv()
 
-TEST_ENDPOINT = "http://127.0.0.1:8000"
+TEST_ENDPOINT = "http://localhost:8000"
+KC_URL = "http://localhost:8080"
+KC_REALM = "myapp"
+KC_CLIENT_ID = "fastapi"
+KC_CLIENT_SECRET = "VERY_SECRET_CLIENT_SECRET"
 
 fake = Faker()
 
@@ -20,13 +24,6 @@ class TestSession:
         self.password = password
         self.access_token = "xxx"
 
-        from app.config.keycloak import settings
-
-        self.keycloak_url = settings.server_url
-        self.realm = settings.realm
-        self.client_id = settings.client_id
-        self.client_secret = settings.client_secret
-
     def __enter__(self):
         self.login(self.username, self.password)
         return self
@@ -37,11 +34,11 @@ class TestSession:
 
     def login(self, username: str, password: str) -> None:
         token_resp = self.client.post(
-            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/token",
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token",
             data={
                 "grant_type": "password",
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
+                "client_id": KC_CLIENT_ID,
+                "client_secret": KC_CLIENT_SECRET,
                 "username": username,
                 "password": password,
                 "scope": "openid profile email",
@@ -57,7 +54,7 @@ class TestSession:
 
     def logout(self) -> None:
         response = self.client.post(
-            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/logout",
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/logout",
             headers=self.headers,
         )
         response.raise_for_status()
@@ -119,10 +116,10 @@ class TestSession:
 
     def introspect(self) -> dict:
         response = self.client.post(
-            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/token/introspect",
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token/introspect",
             data={
-                "client_id": self.client_id,
-                "client_secret": self.client_secret,
+                "client_id": KC_CLIENT_ID,
+                "client_secret": KC_CLIENT_SECRET,
                 "token": self.access_token,
                 "token_type_hint": "access_token",
             },
@@ -132,7 +129,7 @@ class TestSession:
 
     def decode(self) -> dict:
         jwk_keys = PyJWKClient(
-            f"{self.keycloak_url}/realms/{self.realm}/protocol/openid-connect/certs"
+            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/certs"
         )
         return {
             "header": jwt.get_unverified_header(self.access_token),

@@ -6,7 +6,7 @@
   "clients": [
     {
       "clientId": "fastapi",
-      "secret": "GENERATED_CLIENT_SECRET",
+      "secret": "VERY_SECRET_CLIENT_SECRET",
       "name": "Fast API CRM App",
       "enabled": true,
 
