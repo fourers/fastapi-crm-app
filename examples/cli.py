@@ -137,7 +137,9 @@ def list_users(user: str, password: str):
 @user_password_options
 def me(user: str, password: str):
     with TestSession(user, password) as session:
-        response = session.client.get(f"{TEST_ENDPOINT}/auth/me", headers=session.headers)
+        response = session.client.get(
+            f"{TEST_ENDPOINT}/auth/me", headers=session.headers
+        )
         response.raise_for_status()
         print_json(data=response.json())
 

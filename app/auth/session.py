@@ -9,7 +9,7 @@ from app.utils.redis import get_client
 logger = logging.getLogger(__name__)
 
 
-class SessionType(Enum):
+class SessionType(str, Enum):
     BEARER = "bearer"
     COOKIE = "cookie"
 

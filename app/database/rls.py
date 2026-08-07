@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.handler import get_session
 from app.auth.session import UserSession
-from app.database.admin import get_db, provide_db
+from app.database.admin import provide_db
 
 ADMIN_ID = 1
 
@@ -15,7 +15,7 @@ ADMIN_ID = 1
 def get_rls_db(
     session: Annotated[UserSession, Depends(get_session)],
 ) -> Generator[Session, None, None]:
-    with provide_db() as db:
+    with provide_db(db=None) as db:
         if session.id != ADMIN_ID:
             db.execute(
                 text("SELECT set_config('app.current_user_id', :user_id, false)"),

@@ -2,7 +2,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cache
 
-from sqlalchemy import create_engine, Engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config.database import settings
@@ -30,4 +30,4 @@ def provide_db(db: Session | None) -> Generator[Session, None, None]:
         yield db
     else:
         with SessionLocal(bind=_get_engine()) as session:
-                yield session
+            yield session

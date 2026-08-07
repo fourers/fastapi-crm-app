@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from authlib.integrations.base_client.errors import OAuthError
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
@@ -16,13 +16,14 @@ from app.auth.session import (
     delete_session,
 )
 from app.auth.user import get_user_by_id
+from app.utils.keycloak import get_oauth2_client
 from app.utils.traceback import redirect_error_page
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.get("/login", name="login", include_in_schema=False)
-async def keycloak_login(request: Request, include_in_schema=False):
+async def keycloak_login(request: Request):
     return await get_oauth_client().authorize_redirect(
         request,
         request.url_for("login_callback"),
@@ -102,10 +103,45 @@ async def logout_callback(
     return response
 
 
+async def _refresh_token(session: UserSession) -> dict:
+    metadata = await get_oauth_client().load_server_metadata()
+    endpoint = metadata["token_endpoint"]
+    return get_oauth2_client().refresh_token(
+        endpoint, refresh_token=session.refresh_token
+    )
+
+
 class SessionResponse(BaseModel):
     id: int
     username: str
     expiration: datetime
+
+
+@router.post(
+    "/refresh", response_model=SessionResponse, name="refresh", include_in_schema=False
+)
+async def refresh(
+    session: Annotated[UserSession, Depends(get_cookie_session)],
+    response: Response,
+):
+    refresh_response = await _refresh_token(session)
+    session.refresh_token = refresh_response["refresh_token"]
+
+    expires_in = refresh_response["expires_in"]
+    expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    session.expiration = expiration
+
+    create_session(session)
+
+    response.set_cookie(
+        "session_id",
+        session.session_id,
+        expires=expiration,
+        max_age=expires_in,
+        httponly=True,
+        secure=True,
+    )
+    return session
 
 
 @router.get("/me", response_model=SessionResponse)
