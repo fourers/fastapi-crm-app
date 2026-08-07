@@ -14,6 +14,7 @@ from app.auth.session import (
     UserSession,
     create_session,
     delete_session,
+    log_session_to_state,
 )
 from app.auth.user import get_user_by_id
 from app.utils.keycloak import get_oauth2_client
@@ -40,17 +41,17 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     expires_in = token["expires_in"]
     expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
     session_id = secrets.token_urlsafe(32)
-    create_session(
-        UserSession(
-            session_id=session_id,
-            type=SessionType.COOKIE,
-            id=user.id,
-            username=user.username,
-            expiration=expiration,
-            refresh_token=token["refresh_token"],
-            id_token=token["id_token"],
-        ),
+    session = UserSession(
+        session_id=session_id,
+        type=SessionType.COOKIE,
+        id=user.id,
+        username=user.username,
+        expiration=expiration,
+        refresh_token=token["refresh_token"],
+        id_token=token["id_token"],
     )
+    create_session(session)
+    log_session_to_state(request, session)
     request.session.clear()
 
     response = RedirectResponse("/")

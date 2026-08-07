@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from enum import Enum
 
+from fastapi import Request
 from pydantic import BaseModel
 
 from app.utils.redis import get_client
@@ -48,3 +49,8 @@ def get_session(session_type: SessionType, session_id: str) -> UserSession | Non
 def delete_session(session_type: SessionType, session_id: str) -> None:
     redis = get_client()
     redis.delete(f"{session_type}:{session_id}")
+
+
+def log_session_to_state(request: Request, session: UserSession | None) -> None:
+    if session is not None:
+        request.state.user_id = session.id

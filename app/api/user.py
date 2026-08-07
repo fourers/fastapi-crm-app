@@ -5,6 +5,8 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth.handler import get_session
+from app.auth.session import UserSession
 from app.database.admin import get_db
 from app.models.user import User
 from app.utils.keycloak import create_user as create_keycloak_user
@@ -23,6 +25,7 @@ class UserResponse(BaseModel):
 @router.get("/user", response_model=list[UserResponse])
 def get_users(
     db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     return db.scalars(select(User).order_by(User.id)).all()
 
@@ -41,6 +44,7 @@ class UserCreate(UserUpdate):
 def create_user(
     payload: UserCreate,
     db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     keycloak_id = create_keycloak_user(
         payload.username, payload.email, payload.first_name, payload.last_name
@@ -60,6 +64,7 @@ def update_user(
     user_id: Annotated[int, Path()],
     payload: UserUpdate,
     db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
 ):
     user_dict = payload.model_dump(exclude_unset=True)
     user = db.scalars(select(User).filter_by(id=user_id)).first()

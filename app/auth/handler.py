@@ -16,6 +16,7 @@ from app.auth.session import (
 )
 from app.auth.session import (
     get_session as get_user_session,
+    log_session_to_state
 )
 from app.auth.user import get_user_by_id
 from app.config.keycloak import settings
@@ -85,7 +86,7 @@ def _create_session_from_claims(claims: dict, token: str) -> UserSession | None:
         return None
 
 
-async def _validate_bearer_token(token: str) -> UserSession | None:
+async def _validate_bearer_token(request: Request, token: str) -> UserSession | None:
     try:
         await _validate_jwt(token)
     except Exception:
@@ -94,17 +95,22 @@ async def _validate_bearer_token(token: str) -> UserSession | None:
 
     session = get_user_session(SessionType.BEARER, sha_256(token))
     if session is not None:
+        log_session_to_state(request, session)
         return session
 
     response = await _introspect_token(token)
     active = response["active"]
     if active:
-        return _create_session_from_claims(response, token)
+        session = _create_session_from_claims(response, token)
+        log_session_to_state(request, session)
+        return session
     return None
 
 
-def _validate_session_id(session_id: str) -> UserSession | None:
-    return get_user_session(SessionType.COOKIE, session_id)
+def _validate_session_id(request: Request, session_id: str) -> UserSession | None:
+    session = get_user_session(SessionType.COOKIE, session_id)
+    log_session_to_state(request, session)
+    return session
 
 
 def session_id_cookie(request: Request) -> str | None:
@@ -113,13 +119,14 @@ def session_id_cookie(request: Request) -> str | None:
 
 
 async def get_optional_session(
+    request: Request,
     token: Annotated[HTTPAuthorizationCredentials, Depends(bearer_token)],
     session_id: Annotated[str | None, Depends(session_id_cookie)],
 ) -> UserSession | None:
     if token is not None:
-        return await _validate_bearer_token(token.credentials)
+        return await _validate_bearer_token(request, token.credentials)
     elif session_id is not None:
-        return _validate_session_id(session_id)
+        return _validate_session_id(request, session_id)
     else:
         return None
 
@@ -133,11 +140,12 @@ def get_session(
 
 
 def get_optional_cookie_session(
+    request: Request,
     session_id: Annotated[str | None, Depends(session_id_cookie)],
 ) -> UserSession | None:
     if session_id is None:
         return None
-    return _validate_session_id(session_id)
+    return _validate_session_id(request, session_id)
 
 
 def get_cookie_session(
