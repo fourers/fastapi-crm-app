@@ -13,11 +13,9 @@ from app.auth.session import (
     SessionType,
     UserSession,
     create_session,
+    log_session_to_state,
 )
-from app.auth.session import (
-    get_session as get_user_session,
-    log_session_to_state
-)
+from app.auth.session import get_session as get_user_session
 from app.auth.user import get_user_by_id
 from app.config.keycloak import settings
 from app.utils.hashlib import sha_256
