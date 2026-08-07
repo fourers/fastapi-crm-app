@@ -1,4 +1,4 @@
 #!/usr/bin/bash
 set -euo pipefail
 
-uv run fastapi dev
+uv run fastapi dev --reload-dir app
