@@ -14,6 +14,7 @@ dependencies = [
   "hvac",
   "itsdangerous",
   "psycopg",
+  "pydantic[email]",
   "pyjwt",
   "python-dotenv",
   "python-keycloak",

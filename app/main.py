@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -9,6 +10,7 @@ from app.auth.access import access_log
 from app.auth.login import router as login
 from app.pages.home import router as home
 from app.utils.logging import configure_logging
+from app.utils.validation import request_validation_exception_handler
 
 configure_logging()
 load_dotenv()
@@ -26,6 +28,11 @@ app.add_middleware(
 @app.middleware("http")
 async def access_logging(request: Request, call_next):
     return await access_log(request, call_next)
+
+
+@app.exception_handler(RequestValidationError)
+def handle_request_validation_error(request: Request, exc: RequestValidationError):
+    return request_validation_exception_handler(exc)
 
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

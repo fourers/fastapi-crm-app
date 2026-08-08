@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, StringConstraints
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -31,13 +31,19 @@ def get_users(
 
 
 class UserUpdate(BaseModel):
-    email: str | None = None
-    first_name: str | None = None
-    last_name: str | None = None
+    email: Annotated[
+        EmailStr | None, StringConstraints(min_length=1, max_length=255)
+    ] = None
+    first_name: Annotated[
+        str | None, StringConstraints(min_length=1, max_length=100)
+    ] = None
+    last_name: Annotated[
+        str | None, StringConstraints(min_length=1, max_length=100)
+    ] = None
 
 
 class UserCreate(UserUpdate):
-    username: str
+    username: Annotated[str, StringConstraints(min_length=1, max_length=50)]
 
 
 @router.post("/user", response_model=UserResponse)

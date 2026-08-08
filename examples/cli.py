@@ -1,3 +1,5 @@
+import time
+
 import click
 import httpx
 import jwt
@@ -178,6 +180,19 @@ def decode(user: str, password: str):
             ),
         }
         print_json(data=data)
+
+
+@cli.command
+@user_password_options
+def token(user: str, password: str):
+    with TestSession(user, password) as session:
+        click.secho("Access token:", fg="cyan")
+        click.echo(session.access_token)
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            click.secho("\nEnding session...", fg="yellow")
 
 
 if __name__ == "__main__":
