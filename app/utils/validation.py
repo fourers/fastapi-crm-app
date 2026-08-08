@@ -7,14 +7,13 @@ from fastapi.responses import JSONResponse
 logger = logging.getLogger(__name__)
 
 
-def request_validation_exception_handler(
-    exc: RequestValidationError
-) -> JSONResponse:
+def request_validation_exception_handler(exc: RequestValidationError) -> JSONResponse:
     errors = jsonable_encoder(exc.errors())
     try:
         errors = [add_summary_to_validation_error(error) for error in errors]
     except Exception:
         logger.warning("Error adding summary to validation error", exc_info=True)
+
     return JSONResponse(
         status_code=422,
         content={"detail": errors},
