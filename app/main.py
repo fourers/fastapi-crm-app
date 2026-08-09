@@ -37,10 +37,11 @@ def handle_request_validation_error(request: Request, exc: RequestValidationErro
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-app.include_router(home)
 app.include_router(login)
 
 api_router = APIRouter(prefix="/api", tags=["api"])
 app.include_router(api_router)
 api_router.include_router(client)
 api_router.include_router(user)
+
+app.include_router(home)
