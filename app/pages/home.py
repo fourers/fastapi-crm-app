@@ -26,17 +26,6 @@ def home(
         return FileResponse(FRONTEND_FILE_PATH)
 
 
-@router.get("/error", include_in_schema=False, name="error-page")
-def error_page(request: Request):
-    error = request.session.get("error", "Unexpected error...")
-    return templates.TemplateResponse(
-        request,
-        "error.html",
-        context={"logout": request.url_for("logout"), "error": error},
-        status_code=500,
-    )
-
-
 router.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
 
 

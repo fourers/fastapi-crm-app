@@ -1,3 +1,4 @@
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -23,7 +24,8 @@ from app.auth.session import (
     refresh_token,
 )
 from app.auth.user import get_user_by_id
-from app.utils.traceback import redirect_error_page
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -41,7 +43,8 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     user = get_user_by_id(sub)
 
     if not user:
-        return redirect_error_page(request, f"Unable to find user: {sub}")
+        logger.warning(f"Unable to find user: {sub}")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     now = datetime.now(timezone.utc)
     session_id = secrets.token_urlsafe(32)
@@ -77,8 +80,8 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
 async def login_callback(request: Request):
     try:
         token = await get_oauth_client().authorize_access_token(request)
-    except OAuthError as e:
-        return redirect_error_page(request, e.description)
+    except OAuthError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return _create_session_from_claims(request, token)
 
@@ -104,8 +107,8 @@ async def logout_callback(
 ):
     try:
         await get_oauth_client().validate_logout_response(request)
-    except OAuthError as e:
-        return redirect_error_page(request, e.description)
+    except OAuthError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     delete_session(SessionType.COOKIE, session.session_id)
     request.session.clear()
