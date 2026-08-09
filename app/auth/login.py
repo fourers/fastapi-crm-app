@@ -57,9 +57,11 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     )
     create_session(session)
     log_session_to_state(request, session)
+
+    redirect_path = request.session.get("redirect_path", "/")
     request.session.clear()
 
-    response = RedirectResponse("/")
+    response = RedirectResponse(redirect_path)
     response.set_cookie(
         "session_id",
         session_id,
