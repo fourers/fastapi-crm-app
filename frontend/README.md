@@ -29,7 +29,8 @@ bun install
 Start the development server with HMR:
 
 bun dev
-```
+
+````
 
 Your application will be available at `http://localhost:5173`.
 
@@ -39,7 +40,7 @@ Create a production build:
 
 ```bash
 bun run build
-```
+````
 
 ## Styling
 

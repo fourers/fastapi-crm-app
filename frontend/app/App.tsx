@@ -1,11 +1,11 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./app.css";
 
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
 import { AppLayout } from "./layouts/AppLayout";
-import { Home } from "./routes/home";
 import { NotFound } from "./routes/404";
+import { Home } from "./routes/home";
 
 export default function App() {
   return (

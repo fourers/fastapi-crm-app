@@ -5,7 +5,9 @@ export function AppLayout() {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
-          <a className="navbar-brand" href="/">FastAPI CRM</a>
+          <a className="navbar-brand" href="/">
+            FastAPI CRM
+          </a>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
               <li className="nav-item">
