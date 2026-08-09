@@ -1,10 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Path
-from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.types import NullableEmailString, NullableString
 from app.auth.handler import get_session
 from app.auth.session import UserSession
 from app.database.admin import get_db
@@ -32,15 +33,9 @@ def get_clients(
 
 
 class ClientCreate(BaseModel):
-    first_name: Annotated[
-        str | None, StringConstraints(min_length=1, max_length=100)
-    ] = None
-    last_name: Annotated[
-        str | None, StringConstraints(min_length=1, max_length=100)
-    ] = None
-    email: Annotated[
-        EmailStr | None, StringConstraints(min_length=1, max_length=255)
-    ] = None
+    first_name: NullableString = None
+    last_name: NullableString = None
+    email: NullableEmailString = None
 
 
 @router.post("/client", response_model=ClientResponse)

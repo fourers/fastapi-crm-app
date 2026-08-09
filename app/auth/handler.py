@@ -4,22 +4,29 @@ from typing import Annotated
 
 import jwt
 from async_lru import alru_cache
-from fastapi import Depends, HTTPException, Request
+from authlib.integrations.base_client.errors import OAuthError
+from fastapi import Depends, HTTPException, Request, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
 
 from app.auth.client import get_oauth_client
 from app.auth.session import (
+    SSO_IDLE_TIMEOUT_SECONDS,
     SessionType,
     UserSession,
     create_session,
+    delete_session,
     log_session_to_state,
+    refresh_token,
 )
 from app.auth.session import get_session as get_user_session
 from app.auth.user import get_user_by_id
 from app.config.keycloak import settings
 from app.utils.hashlib import sha_256
 from app.utils.keycloak import get_oauth2_client
+
+BEARER_TOKEN_SESSION_SECONDS = 60
+REFRESH_COOKIE_SESSION_THRESHOLD_SECONDS = 60
 
 bearer_token = HTTPBearer(auto_error=False)
 
@@ -66,7 +73,8 @@ def _create_session_from_claims(claims: dict, token: str) -> UserSession | None:
     if user:
         expiration = min(
             datetime.fromtimestamp(claims["exp"], timezone.utc),
-            datetime.now(timezone.utc) + timedelta(seconds=60),
+            datetime.now(timezone.utc)
+            + timedelta(seconds=BEARER_TOKEN_SESSION_SECONDS),
         )
         session = UserSession(
             session_id=sha_256(token),
@@ -74,6 +82,7 @@ def _create_session_from_claims(claims: dict, token: str) -> UserSession | None:
             id=user.id,
             username=user.username,
             expiration=expiration,
+            idle_expiration=expiration,
             refresh_token="xxx",
             id_token="xxx",
         )
@@ -105,10 +114,46 @@ async def _validate_bearer_token(request: Request, token: str) -> UserSession | 
     return None
 
 
-def _validate_session_id(request: Request, session_id: str) -> UserSession | None:
+def _end_cookie_session(session: UserSession, response: Response) -> None:
+    delete_session(SessionType.COOKIE, session.session_id)
+    response.delete_cookie("session_id", httponly=True, secure=True)
+    return None
+
+
+async def _refresh_session(
+    session: UserSession, response: Response
+) -> UserSession | None:
+    try:
+        session = await refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
+        response.set_cookie(
+            "session_id",
+            session.session_id,
+            expires=session.idle_expiration,
+            max_age=SSO_IDLE_TIMEOUT_SECONDS,
+            httponly=True,
+            secure=True,
+        )
+        return session
+    except OAuthError:
+        # End session if cannot be refreshed
+        return _end_cookie_session(session, response)
+
+
+async def _validate_session_id(
+    request: Request, session_id: str, response: Response
+) -> UserSession | None:
     session = get_user_session(SessionType.COOKIE, session_id)
+    if session is None:
+        return None
     log_session_to_state(request, session)
-    return session
+    now = datetime.now(timezone.utc)
+    if session.idle_expiration < now:
+        # End session if SSO session cannot be refreshed
+        return _end_cookie_session(session, response)
+    elif session.expiration < now:
+        return await _refresh_session(session, response)
+    else:
+        return session
 
 
 def session_id_cookie(request: Request) -> str | None:
@@ -120,11 +165,12 @@ async def get_optional_session(
     request: Request,
     token: Annotated[HTTPAuthorizationCredentials, Depends(bearer_token)],
     session_id: Annotated[str | None, Depends(session_id_cookie)],
+    response: Response,
 ) -> UserSession | None:
     if token is not None:
         return await _validate_bearer_token(request, token.credentials)
     elif session_id is not None:
-        return _validate_session_id(request, session_id)
+        return await _validate_session_id(request, session_id, response)
     else:
         return None
 
@@ -137,13 +183,14 @@ def get_session(
     return session
 
 
-def get_optional_cookie_session(
+async def get_optional_cookie_session(
     request: Request,
     session_id: Annotated[str | None, Depends(session_id_cookie)],
+    response: Response,
 ) -> UserSession | None:
     if session_id is None:
         return None
-    return _validate_session_id(request, session_id)
+    return await _validate_session_id(request, session_id, response)
 
 
 def get_cookie_session(

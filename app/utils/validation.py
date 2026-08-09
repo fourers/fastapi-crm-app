@@ -16,7 +16,7 @@ def request_validation_exception_handler(exc: RequestValidationError) -> JSONRes
 
     return JSONResponse(
         status_code=422,
-        content={"detail": errors},
+        content={"detail": errors, "summary": str(exc)},
     )
 
 

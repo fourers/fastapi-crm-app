@@ -3,21 +3,26 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from authlib.integrations.base_client.errors import OAuthError
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 from app.auth.client import get_oauth_client
-from app.auth.handler import get_cookie_session, get_session
+from app.auth.handler import (
+    get_cookie_session,
+    get_optional_cookie_session,
+    get_session,
+)
 from app.auth.session import (
+    SSO_IDLE_TIMEOUT_SECONDS,
     SessionType,
     UserSession,
     create_session,
     delete_session,
     log_session_to_state,
+    refresh_token,
 )
 from app.auth.user import get_user_by_id
-from app.utils.keycloak import get_oauth2_client
 from app.utils.traceback import redirect_error_page
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -38,15 +43,15 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     if not user:
         return redirect_error_page(request, f"Unable to find user: {sub}")
 
-    expires_in = token["expires_in"]
-    expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
+    now = datetime.now(timezone.utc)
     session_id = secrets.token_urlsafe(32)
     session = UserSession(
         session_id=session_id,
         type=SessionType.COOKIE,
         id=user.id,
         username=user.username,
-        expiration=expiration,
+        expiration=now + timedelta(seconds=token["expires_in"]),
+        idle_expiration=now + timedelta(seconds=SSO_IDLE_TIMEOUT_SECONDS),
         refresh_token=token["refresh_token"],
         id_token=token["id_token"],
     )
@@ -58,8 +63,8 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     response.set_cookie(
         "session_id",
         session_id,
-        expires=expiration,
-        max_age=expires_in,
+        expires=session.idle_expiration,
+        max_age=SSO_IDLE_TIMEOUT_SECONDS,
         httponly=True,
         secure=True,
     )
@@ -78,13 +83,17 @@ async def login_callback(request: Request):
 
 @router.post("/logout", name="logout", include_in_schema=False)
 async def logout(
-    request: Request, session: Annotated[UserSession, Depends(get_cookie_session)]
+    request: Request,
+    session: Annotated[UserSession, Depends(get_optional_cookie_session)],
 ):
-    return await get_oauth_client().logout_redirect(
-        request,
-        request.url_for("logout_callback"),
-        session.id_token,
-    )
+    if session is None:
+        return RedirectResponse(request.url_for("home"), 302)
+    else:
+        return await get_oauth_client().logout_redirect(
+            request,
+            request.url_for("logout_callback"),
+            session.id_token,
+        )
 
 
 @router.get("/logout/callback", name="logout_callback", include_in_schema=False)
@@ -104,14 +113,6 @@ async def logout_callback(
     return response
 
 
-async def _refresh_token(session: UserSession) -> dict:
-    metadata = await get_oauth_client().load_server_metadata()
-    endpoint = metadata["token_endpoint"]
-    return get_oauth2_client().refresh_token(
-        endpoint, refresh_token=session.refresh_token
-    )
-
-
 class SessionResponse(BaseModel):
     id: int
     username: str
@@ -125,20 +126,16 @@ async def refresh(
     session: Annotated[UserSession, Depends(get_cookie_session)],
     response: Response,
 ):
-    refresh_response = await _refresh_token(session)
-    session.refresh_token = refresh_response["refresh_token"]
-
-    expires_in = refresh_response["expires_in"]
-    expiration = datetime.now(timezone.utc) + timedelta(seconds=expires_in)
-    session.expiration = expiration
-
-    create_session(session)
+    try:
+        session = await refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
+    except OAuthError:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
     response.set_cookie(
         "session_id",
         session.session_id,
-        expires=expiration,
-        max_age=expires_in,
+        expires=session.idle_expiration,
+        max_age=SSO_IDLE_TIMEOUT_SECONDS,
         httponly=True,
         secure=True,
     )
