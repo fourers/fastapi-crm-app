@@ -1,3 +1,6 @@
+build:
+    scripts/build.sh
+
 cli *ARGS:
     uv run examples/cli.py {{ARGS}}
 
