@@ -2,14 +2,11 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
-import jwt
-from async_lru import alru_cache
 from authlib.integrations.base_client.errors import OAuthError
 from fastapi import Depends, HTTPException, Request, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jwt import PyJWKClient
 
-from app.auth.client import get_oauth_client
+from app.auth.client import get_oauth_client, validate_jwt
 from app.auth.session import (
     SSO_IDLE_TIMEOUT_SECONDS,
     SessionType,
@@ -17,11 +14,9 @@ from app.auth.session import (
     create_session,
     delete_session,
     log_session_to_state,
-    refresh_token,
 )
 from app.auth.session import get_session as get_user_session
 from app.auth.user import get_user_by_id
-from app.config.keycloak import settings
 from app.utils.hashlib import sha_256
 from app.utils.keycloak import get_oauth2_client
 
@@ -31,30 +26,6 @@ REFRESH_COOKIE_SESSION_THRESHOLD_SECONDS = 60
 bearer_token = HTTPBearer(auto_error=False)
 
 logger = logging.getLogger(__name__)
-
-
-@alru_cache
-async def _get_jwk_keys() -> PyJWKClient:
-    metadata = await get_oauth_client().load_server_metadata()
-    endpoint = metadata["jwks_uri"]
-    return PyJWKClient(endpoint)
-
-
-async def _validate_jwt(token: str) -> None:
-    jwk_keys = await _get_jwk_keys()
-    jwt.decode(
-        token,
-        key=jwk_keys.get_signing_key_from_jwt(token),
-        algorithms=["RS256"],
-        options={
-            "require": ["iss", "aud", "exp"],
-            "verify_iss": True,
-            "verify_aud": True,
-            "verify_exp": True,
-        },
-        issuer=f"{settings.server_url}/realms/{settings.realm}",
-        audience=settings.client_id,
-    )
 
 
 async def _introspect_token(token: str) -> dict:
@@ -95,7 +66,7 @@ def _create_session_from_claims(claims: dict, token: str) -> UserSession | None:
 
 async def _validate_bearer_token(request: Request, token: str) -> UserSession | None:
     try:
-        await _validate_jwt(token)
+        await validate_jwt(token)
     except Exception:
         logger.warning("Failed to validate token", exc_info=True)
         return None
@@ -114,6 +85,22 @@ async def _validate_bearer_token(request: Request, token: str) -> UserSession | 
     return None
 
 
+async def _refresh_token(session: UserSession, idle_timeout: int) -> UserSession:
+    metadata = await get_oauth_client().load_server_metadata()
+    endpoint = metadata["token_endpoint"]
+    response = get_oauth2_client().refresh_token(
+        endpoint, refresh_token=session.refresh_token
+    )
+    session.refresh_token = response["refresh_token"]
+
+    now = datetime.now(timezone.utc)
+    session.expiration = now + timedelta(seconds=response["expires_in"])
+    session.idle_expiration = now + timedelta(seconds=idle_timeout)
+
+    create_session(session)
+    return session
+
+
 def _end_cookie_session(session: UserSession, response: Response) -> None:
     delete_session(SessionType.COOKIE, session.session_id)
     response.delete_cookie("session_id", httponly=True, secure=True)
@@ -124,7 +111,7 @@ async def _refresh_session(
     session: UserSession, response: Response
 ) -> UserSession | None:
     try:
-        session = await refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
+        session = await _refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
         response.set_cookie(
             "session_id",
             session.session_id,

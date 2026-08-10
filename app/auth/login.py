@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from authlib.integrations.base_client.errors import OAuthError
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
@@ -21,7 +21,6 @@ from app.auth.session import (
     create_session,
     delete_session,
     log_session_to_state,
-    refresh_token,
 )
 from app.auth.user import get_user_by_id
 
@@ -122,29 +121,6 @@ class SessionResponse(BaseModel):
     id: int
     username: str
     expiration: datetime
-
-
-@router.post(
-    "/refresh", response_model=SessionResponse, name="refresh", include_in_schema=False
-)
-async def refresh(
-    session: Annotated[UserSession, Depends(get_cookie_session)],
-    response: Response,
-):
-    try:
-        session = await refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
-    except OAuthError:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    response.set_cookie(
-        "session_id",
-        session.session_id,
-        expires=session.idle_expiration,
-        max_age=SSO_IDLE_TIMEOUT_SECONDS,
-        httponly=True,
-        secure=True,
-    )
-    return session
 
 
 @router.get("/me", response_model=SessionResponse)

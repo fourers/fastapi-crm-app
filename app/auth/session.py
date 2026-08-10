@@ -1,12 +1,10 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from enum import Enum
 
 from fastapi import Request
 from pydantic import BaseModel
 
-from app.auth.client import get_oauth_client
-from app.utils.keycloak import get_oauth2_client
 from app.utils.redis import get_client
 
 logger = logging.getLogger(__name__)
@@ -59,19 +57,3 @@ def delete_session(session_type: SessionType, session_id: str) -> None:
 def log_session_to_state(request: Request, session: UserSession | None) -> None:
     if session is not None:
         request.state.user_id = session.id
-
-
-async def refresh_token(session: UserSession, idle_timeout: int) -> UserSession:
-    metadata = await get_oauth_client().load_server_metadata()
-    endpoint = metadata["token_endpoint"]
-    response = get_oauth2_client().refresh_token(
-        endpoint, refresh_token=session.refresh_token
-    )
-    session.refresh_token = response["refresh_token"]
-
-    now = datetime.now(timezone.utc)
-    session.expiration = now + timedelta(seconds=response["expires_in"])
-    session.idle_expiration = now + timedelta(seconds=idle_timeout)
-
-    create_session(session)
-    return session
