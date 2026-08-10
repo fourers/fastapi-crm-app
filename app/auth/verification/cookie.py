@@ -19,13 +19,13 @@ from app.utils.keycloak import get_oauth2_client
 async def _refresh_token(session: UserSession, response: Response) -> UserSession:
     metadata = await get_oauth_client().load_server_metadata()
     endpoint = metadata["token_endpoint"]
-    response = get_oauth2_client().refresh_token(
+    refresh_response = get_oauth2_client().refresh_token(
         endpoint, refresh_token=session.refresh_token
     )
-    session.refresh_token = response["refresh_token"]
+    session.refresh_token = refresh_response["refresh_token"]
 
     now = datetime.now(timezone.utc)
-    session.expiration = now + timedelta(seconds=response["expires_in"])
+    session.expiration = now + timedelta(seconds=refresh_response["expires_in"])
     session.idle_expiration = now + timedelta(seconds=SSO_IDLE_TIMEOUT_SECONDS)
 
     create_session(session)

@@ -8,17 +8,15 @@ export function AppLayout() {
           <a className="navbar-brand" href="/">
             FastAPI CRM
           </a>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item">
-                <form method="post" action="/auth/logout">
-                  <button type="submit" className="nav-link btn btn-link">
-                    Logout
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </div>
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <form method="post" action="/auth/logout">
+                <button type="submit" className="nav-link btn btn-link">
+                  Logout
+                </button>
+              </form>
+            </li>
+          </ul>
         </div>
       </nav>
 
