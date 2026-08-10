@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./app.css";
 
 import { redirect } from "react-router";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "react-router-dom";
 
 import { LoadingScreen } from "./components/LoadingScreen";
 import { AppLayout } from "./layouts/AppLayout";
@@ -11,13 +11,19 @@ import { NotFound } from "./routes/404";
 import { Home } from "./routes/home";
 import { Login } from "./routes/login";
 
-async function authLoader() {
+async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
     credentials: "include",
   });
 
   if (response.status === 401) {
-    throw redirect("/login");
+    if (url.pathname === "/") {
+      throw redirect("/login");
+    } else {
+      throw redirect(
+        `/login?return_to=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
+      );
+    }
   }
 
   if (!response.ok) {
@@ -53,6 +59,10 @@ export default function App() {
           element: <NotFound />,
         },
       ],
+    },
+    {
+      path: "/loading",
+      element: <LoadingScreen />,
     },
   ]);
 

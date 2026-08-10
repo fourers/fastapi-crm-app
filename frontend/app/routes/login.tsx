@@ -1,4 +1,13 @@
+import { useSearchParams } from "react-router-dom";
+
 export function Login() {
+  const [searchParams] = useSearchParams();
+
+  const returnTo = searchParams.get("return_to");
+  const loginEndpoint = returnTo
+    ? `/auth/login?return_to=${encodeURIComponent(returnTo)}`
+    : "/auth/login";
+
   return (
     <div className="d-flex align-items-center justify-content-center">
       <div className="card shadow-sm m-4" style={{ width: "100%", maxWidth: "400px" }}>
@@ -7,7 +16,7 @@ export function Login() {
 
           <p className="text-muted mb-4">Sign in to continue</p>
 
-          <a href="/auth/login" className="btn btn-dark btn-lg w-100">
+          <a href={loginEndpoint} className="btn btn-dark btn-lg w-100">
             Login
           </a>
         </div>

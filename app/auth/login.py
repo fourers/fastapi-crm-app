@@ -31,9 +31,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.get("/login", name="login", include_in_schema=False)
 async def keycloak_login(request: Request):
+    redirect_uri = request.url_for("login_callback")
+    return_to = request.query_params.get("return_to")
+    if return_to:
+        redirect_uri = redirect_uri.include_query_params(return_to=return_to)
     return await get_oauth_client().authorize_redirect(
         request,
-        request.url_for("login_callback"),
+        redirect_uri,
     )
 
 
@@ -60,7 +64,7 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     create_session(session)
     log_session_to_state(request, session)
 
-    redirect_path = request.session.get("redirect_path", "/")
+    redirect_path = request.query_params.get("return_to", "/")
     request.session.clear()
 
     response = RedirectResponse(redirect_path)
