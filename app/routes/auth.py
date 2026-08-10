@@ -26,7 +26,7 @@ from app.auth.user import get_user_by_id
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(tags=["auth"])
 
 
 @router.get("/login", name="login", include_in_schema=False)

@@ -1,14 +1,13 @@
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
-from app.api.client import router as client
-from app.api.user import router as user
 from app.auth.access import access_log
-from app.auth.login import router as login
-from app.pages.home import router as home
+from app.routes.api import router as api_router
+from app.routes.auth import router as auth_router
+from app.routes.index import router as index_router
 from app.utils.logging import configure_logging
 from app.utils.validation import request_validation_exception_handler
 
@@ -36,12 +35,8 @@ def handle_request_validation_error(request: Request, exc: RequestValidationErro
 
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
 
-app.include_router(login)
-
-api_router = APIRouter(prefix="/api", tags=["api"])
-app.include_router(api_router)
-api_router.include_router(client)
-api_router.include_router(user)
-
-app.include_router(home)
+app.include_router(prefix="/api", router=api_router)
+app.include_router(prefix="/auth", router=auth_router)
+app.include_router(index_router)
