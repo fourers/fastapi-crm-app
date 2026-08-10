@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "format": "prettier --write .",
+    "format": "prettier --write . --log-level warn",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit"
   },

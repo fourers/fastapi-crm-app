@@ -112,7 +112,7 @@ async def logout_callback(
     delete_session(SessionType.COOKIE, session.session_id)
     request.session.clear()
 
-    response = RedirectResponse(request.url_for("home"))
+    response = RedirectResponse("/")
     response.delete_cookie("session_id", httponly=True, secure=True)
     return response
 

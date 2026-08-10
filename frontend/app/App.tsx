@@ -4,6 +4,7 @@ import "./app.css";
 import { redirect } from "react-router";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
+import { LoadingScreen } from "./components/LoadingScreen";
 import { AppLayout } from "./layouts/AppLayout";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { NotFound } from "./routes/404";
@@ -30,6 +31,7 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
+      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/login",
@@ -40,6 +42,7 @@ export default function App() {
     {
       element: <AppLayout />,
       loader: authLoader,
+      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/",

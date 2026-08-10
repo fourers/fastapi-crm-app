@@ -27,3 +27,6 @@ stop:
 
 update:
     scripts/update.sh
+
+watch:
+    scripts/watch.sh

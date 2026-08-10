@@ -1,6 +1,10 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigation } from "react-router-dom";
+
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export function AppLayout() {
+  const navigation = useNavigation();
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -19,6 +23,8 @@ export function AppLayout() {
           </ul>
         </div>
       </nav>
+
+      {navigation.state === "loading" && <LoadingSpinner />}
 
       <main className="container py-4">
         <Outlet />
