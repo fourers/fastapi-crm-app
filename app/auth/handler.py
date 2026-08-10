@@ -21,7 +21,6 @@ from app.utils.hashlib import sha_256
 from app.utils.keycloak import get_oauth2_client
 
 BEARER_TOKEN_SESSION_SECONDS = 60
-REFRESH_COOKIE_SESSION_THRESHOLD_SECONDS = 60
 
 bearer_token = HTTPBearer(auto_error=False)
 
@@ -85,7 +84,12 @@ async def _validate_bearer_token(request: Request, token: str) -> UserSession | 
     return None
 
 
-async def _refresh_token(session: UserSession, idle_timeout: int) -> UserSession:
+def session_id_cookie(request: Request) -> str | None:
+    # Avoid using APIKeyCookie so it doesn't appear in docs
+    return request.cookies.get("session_id")
+
+
+async def _refresh_token(session: UserSession, response: Response) -> UserSession:
     metadata = await get_oauth_client().load_server_metadata()
     endpoint = metadata["token_endpoint"]
     response = get_oauth2_client().refresh_token(
@@ -95,9 +99,18 @@ async def _refresh_token(session: UserSession, idle_timeout: int) -> UserSession
 
     now = datetime.now(timezone.utc)
     session.expiration = now + timedelta(seconds=response["expires_in"])
-    session.idle_expiration = now + timedelta(seconds=idle_timeout)
+    session.idle_expiration = now + timedelta(seconds=SSO_IDLE_TIMEOUT_SECONDS)
 
     create_session(session)
+
+    response.set_cookie(
+        "session_id",
+        session.session_id,
+        expires=session.idle_expiration,
+        max_age=SSO_IDLE_TIMEOUT_SECONDS,
+        httponly=True,
+        secure=True,
+    )
     return session
 
 
@@ -111,16 +124,7 @@ async def _refresh_session(
     session: UserSession, response: Response
 ) -> UserSession | None:
     try:
-        session = await _refresh_token(session, SSO_IDLE_TIMEOUT_SECONDS)
-        response.set_cookie(
-            "session_id",
-            session.session_id,
-            expires=session.idle_expiration,
-            max_age=SSO_IDLE_TIMEOUT_SECONDS,
-            httponly=True,
-            secure=True,
-        )
-        return session
+        return await _refresh_token(session, response)
     except OAuthError:
         # End session if cannot be refreshed
         return _end_cookie_session(session, response)
@@ -134,18 +138,10 @@ async def _validate_session_id(
         return None
     log_session_to_state(request, session)
     now = datetime.now(timezone.utc)
-    if session.idle_expiration < now:
-        # End session if SSO session cannot be refreshed
-        return _end_cookie_session(session, response)
-    elif session.expiration < now:
+    if session.expiration < now:
         return await _refresh_session(session, response)
     else:
         return session
-
-
-def session_id_cookie(request: Request) -> str | None:
-    # Avoid using APIKeyCookie so it doesn't appear in docs
-    return request.cookies.get("session_id")
 
 
 async def get_optional_session(
