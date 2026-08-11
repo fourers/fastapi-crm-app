@@ -1,4 +1,10 @@
 #!/usr/bin/bash
 set -euo pipefail
 
-uv lock --upgrade
+uv sync --upgrade
+
+pushd "frontend" > /dev/null
+
+bun update
+
+popd > /dev/null
