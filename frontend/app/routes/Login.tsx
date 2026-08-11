@@ -3,10 +3,8 @@ import { useSearchParams } from "react-router-dom";
 export function Login() {
   const [searchParams] = useSearchParams();
 
-  const returnTo = searchParams.get("return_to");
-  const loginEndpoint = returnTo
-    ? `/auth/login?return_to=${encodeURIComponent(returnTo)}`
-    : "/auth/login";
+  const next = searchParams.get("next");
+  const loginEndpoint = next ? `/auth/login?next=${encodeURIComponent(next)}` : "/auth/login";
 
   return (
     <div className="d-flex align-items-center justify-content-center">

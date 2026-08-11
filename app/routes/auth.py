@@ -32,9 +32,9 @@ router = APIRouter(tags=["auth"])
 @router.get("/login", name="login", include_in_schema=False)
 async def keycloak_login(request: Request):
     redirect_uri = request.url_for("login_callback")
-    return_to = request.query_params.get("return_to")
-    if return_to:
-        redirect_uri = redirect_uri.include_query_params(return_to=return_to)
+    next_param = request.query_params.get("next")
+    if next_param:
+        redirect_uri = redirect_uri.include_query_params(next=next_param)
     return await get_oauth_client().authorize_redirect(
         request,
         redirect_uri,
@@ -64,7 +64,7 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     create_session(session)
     log_session_to_state(request, session)
 
-    redirect_path = request.query_params.get("return_to", "/")
+    redirect_path = request.query_params.get("next", "/")
     request.session.clear()
 
     response = RedirectResponse(redirect_path)
@@ -116,7 +116,7 @@ async def logout_callback(
     delete_session(SessionType.COOKIE, session.session_id)
     request.session.clear()
 
-    response = RedirectResponse("/")
+    response = RedirectResponse("/login")
     response.delete_cookie("session_id", httponly=True, secure=True)
     return response
 

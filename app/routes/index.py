@@ -9,8 +9,8 @@ from app.auth.session import UserSession
 router = APIRouter(include_in_schema=False)
 
 
-@router.get("/{path:path}", name="catch-all")
-def catch_all(
+@router.get("/{path:path}", name="index")
+def index(
     session: Annotated[UserSession | None, Depends(get_optional_cookie_session)],
 ):
     return FileResponse("frontend/dist/index.html")

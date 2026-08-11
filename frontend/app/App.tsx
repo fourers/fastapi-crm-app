@@ -8,8 +8,9 @@ import { LoadingScreen } from "./components/LoadingScreen";
 import { AppLayout } from "./layouts/AppLayout";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { NotFound } from "./routes/404";
-import { Home } from "./routes/home";
-import { Login } from "./routes/login";
+import { Clients } from "./routes/Clients";
+import { Home } from "./routes/Home";
+import { Login } from "./routes/Login";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
@@ -21,7 +22,7 @@ async function authLoader({ url }: LoaderFunctionArgs) {
       throw redirect("/login");
     } else {
       throw redirect(
-        `/login?return_to=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
+        `/login?next=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
       );
     }
   }
@@ -37,7 +38,6 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
-      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/login",
@@ -48,11 +48,14 @@ export default function App() {
     {
       element: <AppLayout />,
       loader: authLoader,
-      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/",
           element: <Home />,
+        },
+        {
+          path: "/clients",
+          element: <Clients />,
         },
         {
           path: "*",
