@@ -1,16 +1,16 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 
-from app.auth.handler import get_optional_cookie_session
-from app.auth.session import UserSession
+RESTRICTED_PATHS = [
+    "api",
+    "auth",
+]
 
 router = APIRouter(include_in_schema=False)
 
 
 @router.get("/{path:path}", name="index")
-def index(
-    session: Annotated[UserSession | None, Depends(get_optional_cookie_session)],
-):
+def index(path: str):
+    if any([path == p or path.startswith(f"{p}/") for p in RESTRICTED_PATHS]):
+        return HTTPException(404)
     return FileResponse("frontend/dist/index.html")

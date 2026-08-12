@@ -37,12 +37,6 @@ def handle_request_validation_error(request: Request, exc: RequestValidationErro
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
 
-api_app = FastAPI()
-api_app.include_router(api_router)
-app.mount("/api", api_app)
-
-auth_app = FastAPI()
-auth_app.include_router(auth_router)
-app.mount("/auth", auth_router)
-
+app.include_router(api_router, prefix="/api")
+app.include_router(auth_router, prefix="/auth")
 app.include_router(index_router)
