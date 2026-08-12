@@ -1,17 +1,23 @@
 import { useEffect } from "react";
 
-import { Table } from "~/features/clients/ClientTable";
+import { ErrorToast } from "~/components/ErrorToast";
+import { ClientTable } from "~/features/clients/ClientTable";
 import { useClientStore } from "~/stores/clientStore";
 
 export function Clients() {
   const clients = useClientStore((state) => state.clients);
   const loading = useClientStore((state) => state.loading);
-  // const error = useClientStore((state) => state.error);
-  const loadClient = useClientStore((state) => state.loadClient);
+  const error = useClientStore((state) => state.error);
+  const loadClients = useClientStore((state) => state.loadClients);
 
   useEffect(() => {
-    loadClient();
-  }, [loadClient]);
+    loadClients();
+  }, [loadClients]);
 
-  return <Table clients={clients} loading={loading} />;
+  return (
+    <>
+      <ErrorToast error={error} />
+      <ClientTable clients={clients} loading={loading} />
+    </>
+  );
 }

@@ -38,6 +38,7 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
+      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/login",
@@ -48,6 +49,7 @@ export default function App() {
     {
       element: <AppLayout />,
       loader: authLoader,
+      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/",

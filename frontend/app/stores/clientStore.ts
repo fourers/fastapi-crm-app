@@ -12,7 +12,7 @@ interface ClientStore {
   clients: Client[];
   loading: boolean;
   error: string | null;
-  loadClient: () => Promise<void>;
+  loadClients: () => Promise<void>;
 }
 
 export const useClientStore = create<ClientStore>((set) => ({
@@ -20,7 +20,7 @@ export const useClientStore = create<ClientStore>((set) => ({
   loading: false,
   error: null,
 
-  loadClient: async () => {
+  loadClients: async () => {
     set({ loading: true, error: null });
 
     try {

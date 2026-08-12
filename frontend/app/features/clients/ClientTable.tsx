@@ -6,7 +6,7 @@ interface TableProps {
   loading: boolean;
 }
 
-export function Table({ clients, loading }: TableProps) {
+export function ClientTable({ clients, loading }: TableProps) {
   return (
     <div className="card shadow-sm">
       <div className="card-header">
@@ -23,22 +23,33 @@ export function Table({ clients, loading }: TableProps) {
           <div id="table-container" className="table-responsive">
             <table className="table table-hover align-middle mb-0">
               <thead id="table-head">
-                <tr>
-                  {Object.keys(clients[0] ?? []).map((col) => {
-                    return <th scope="col">{col}</th>;
-                  })}
-                </tr>
+                {clients.length > 0 ? (
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Owner Id</th>
+                  </tr>
+                ) : null}
               </thead>
               <tbody id="table-body">
-                {clients.map((client) => {
-                  return (
-                    <tr>
-                      {Object.values(client).map((value) => {
-                        return <td>{value}</td>;
-                      })}
-                    </tr>
-                  );
-                })}
+                {clients.length === 0 ? (
+                  <tr>
+                    <td colSpan={100} className="text-center text-muted py-4">
+                      No clients found.
+                    </td>
+                  </tr>
+                ) : null}
+                {clients.map((client) => (
+                  <tr>
+                    <td>{client.id}</td>
+                    <td>{client.first_name}</td>
+                    <td>{client.last_name}</td>
+                    <td>{client.email}</td>
+                    <td>{client.owner_id}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
