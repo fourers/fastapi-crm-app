@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface AppError {
+export interface AppError {
   id: string;
   message: string;
   status?: number;

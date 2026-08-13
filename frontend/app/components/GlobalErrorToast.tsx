@@ -14,10 +14,9 @@ export function GlobalErrorToast() {
       style={{ zIndex: 1080 }}
     >
       {errors.map((error) => {
-        const prefix = error.status ? `${error.status}: ` : "";
         return (
           <ErrorToast
-            error={`${prefix}${error.message}`}
+            error={error}
             onClose={() => useErrorStore.getState().removeError(error.id)}
           />
         );

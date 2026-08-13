@@ -23,7 +23,7 @@ export const useClientStore = create<ClientStore>((set) => ({
   loadClients: async () => {
     set({ loading: true });
 
-    const response = await apiFetch<Client[]>("/api/clients");
+    const response = await apiFetch<Client[]>("/api/client");
     if (response !== null) {
       set({
         clients: response,
