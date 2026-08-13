@@ -1,6 +1,9 @@
 build:
     scripts/build.sh
 
+build_dev:
+    scripts/build_dev.sh
+
 cli *ARGS:
     uv run examples/cli.py {{ARGS}}
 

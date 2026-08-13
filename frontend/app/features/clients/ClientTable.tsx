@@ -41,15 +41,16 @@ export function ClientTable({ clients, loading }: TableProps) {
                     </td>
                   </tr>
                 ) : null}
-                {clients.map((client) => (
-                  <tr>
-                    <td>{client.id}</td>
-                    <td>{client.first_name}</td>
-                    <td>{client.last_name}</td>
-                    <td>{client.email}</td>
-                    <td>{client.owner_id}</td>
-                  </tr>
-                ))}
+                {clients.length > 0 &&
+                  clients.map((client) => (
+                    <tr>
+                      <td>{client.id}</td>
+                      <td>{client.first_name}</td>
+                      <td>{client.last_name}</td>
+                      <td>{client.email}</td>
+                      <td>{client.owner_id}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import { apiFetch } from "~/utils/fetch";
+
 export interface Client {
   id: number;
   first_name: string;
@@ -11,35 +13,25 @@ export interface Client {
 interface ClientStore {
   clients: Client[];
   loading: boolean;
-  error: string | null;
   loadClients: () => Promise<void>;
 }
 
 export const useClientStore = create<ClientStore>((set) => ({
   clients: [],
-  loading: false,
-  error: null,
+  loading: true,
 
   loadClients: async () => {
-    set({ loading: true, error: null });
+    set({ loading: true });
 
-    try {
-      const response = await fetch("/api/client");
-
-      if (!response.ok) {
-        throw new Error(`Request failed: ${response.status}`);
-      }
-
-      const clients = await response.json();
-
+    const response = await apiFetch<Client[]>("/api/clients");
+    if (response !== null) {
       set({
-        clients,
+        clients: response,
         loading: false,
       });
-    } catch (error) {
+    } else {
       set({
         loading: false,
-        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   },
