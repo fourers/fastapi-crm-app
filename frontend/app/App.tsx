@@ -1,16 +1,16 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./app.css";
+import "~/app.css";
 
 import { redirect } from "react-router";
 import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "react-router-dom";
 
-import { LoadingScreen } from "./components/LoadingScreen";
-import { AppLayout } from "./layouts/AppLayout";
-import { PublicLayout } from "./layouts/PublicLayout";
-import { NotFound } from "./routes/404";
-import { Clients } from "./routes/Clients";
-import { Home } from "./routes/Home";
-import { Login } from "./routes/Login";
+import { LoadingScreen } from "~/components/LoadingScreen";
+import { AppLayout } from "~/layouts/AppLayout";
+import { PublicLayout } from "~/layouts/PublicLayout";
+import { NotFound } from "~/routes/404";
+import { Clients } from "~/routes/Clients";
+import { Home } from "~/routes/Home";
+import { Login } from "~/routes/Login";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {

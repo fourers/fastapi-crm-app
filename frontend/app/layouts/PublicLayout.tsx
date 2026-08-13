@@ -1,6 +1,6 @@
 import { Outlet, useNavigation } from "react-router-dom";
 
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 export function PublicLayout() {
   const navigation = useNavigation();
