@@ -28,6 +28,9 @@ start:
 stop:
     docker compose down -v
 
+test *ARGS:
+    uv run pytest {{ARGS}}
+
 update:
     scripts/update.sh
 
