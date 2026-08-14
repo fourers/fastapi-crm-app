@@ -5,7 +5,6 @@ import { redirect } from "react-router";
 import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "react-router-dom";
 
 import { ErrorScreen } from "~/components/ErrorScreen";
-import { LoadingScreen } from "~/components/LoadingScreen";
 import { AppLayout } from "~/layouts/AppLayout";
 import { PublicLayout } from "~/layouts/PublicLayout";
 import { NotFound } from "~/routes/404";
@@ -41,7 +40,6 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
-      HydrateFallback: LoadingScreen,
       children: [
         {
           path: "/login",
@@ -52,7 +50,7 @@ export default function App() {
     {
       element: <AppLayout />,
       loader: authLoader,
-      HydrateFallback: LoadingScreen,
+      shouldRevalidate: () => false,
       errorElement: <ErrorScreen />,
       children: [
         {
@@ -72,10 +70,6 @@ export default function App() {
           element: <NotFound />,
         },
       ],
-    },
-    {
-      path: "/loading",
-      element: <LoadingScreen />,
     },
   ]);
 
