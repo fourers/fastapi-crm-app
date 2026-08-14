@@ -8,7 +8,6 @@ dependencies = [
   "alembic",
   "async-lru",
   "authlib",
-  "click",
   "fastapi[standard]",
   "httpx",
   "hvac",
@@ -24,8 +23,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+  "click",
   "faker",
+  "playwright",
   "pytest",
+  "pytest-playwright",
   "rich",
   "ruff",
   "ty",
