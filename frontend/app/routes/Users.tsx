@@ -4,9 +4,9 @@ import { Table } from "~/components/Table";
 import { useUserStore } from "~/stores/userStore";
 
 export function Users() {
-  const users = useUserStore((state) => state.users);
+  const users = useUserStore((state) => state.data);
   const loading = useUserStore((state) => state.loading);
-  const loadUsers = useUserStore((state) => state.loadUsers);
+  const loadUsers = useUserStore((state) => state.loadData);
 
   useEffect(() => {
     loadUsers();

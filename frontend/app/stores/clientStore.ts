@@ -1,6 +1,4 @@
-import { create } from "zustand";
-
-import { apiFetch } from "~/utils/fetch";
+import { createStore } from "~/stores/factory";
 
 export interface Client {
   id: number;
@@ -10,29 +8,4 @@ export interface Client {
   owner_id: string;
 }
 
-interface ClientStore {
-  clients: Client[];
-  loading: boolean;
-  loadClients: () => Promise<void>;
-}
-
-export const useClientStore = create<ClientStore>((set) => ({
-  clients: [],
-  loading: true,
-
-  loadClients: async () => {
-    set({ loading: true });
-
-    const response = await apiFetch<Client[]>("/api/client");
-    if (response !== null) {
-      set({
-        clients: response,
-        loading: false,
-      });
-    } else {
-      set({
-        loading: false,
-      });
-    }
-  },
-}));
+export const useClientStore = createStore<Client[]>("/api/client", []);

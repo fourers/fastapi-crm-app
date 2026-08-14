@@ -4,9 +4,9 @@ import { ClientTable } from "~/features/clients/ClientTable";
 import { useClientStore } from "~/stores/clientStore";
 
 export function Clients() {
-  const clients = useClientStore((state) => state.clients);
+  const clients = useClientStore((state) => state.data);
   const loading = useClientStore((state) => state.loading);
-  const loadClients = useClientStore((state) => state.loadClients);
+  const loadClients = useClientStore((state) => state.loadData);
 
   useEffect(() => {
     loadClients();
