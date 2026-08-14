@@ -34,8 +34,8 @@ def handle_request_validation_error(request: Request, exc: RequestValidationErro
     return request_validation_exception_handler(exc)
 
 
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.mount("/assets", StaticFiles(directory="frontend/dist/assets"))
+app.mount("/static", StaticFiles(directory="frontend/dist/static"))
 
 app.include_router(api_router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")
