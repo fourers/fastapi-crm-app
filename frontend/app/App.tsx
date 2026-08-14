@@ -4,6 +4,7 @@ import "~/app.css";
 import { redirect } from "react-router";
 import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "react-router-dom";
 
+import { ErrorScreen } from "~/components/ErrorScreen";
 import { LoadingScreen } from "~/components/LoadingScreen";
 import { AppLayout } from "~/layouts/AppLayout";
 import { PublicLayout } from "~/layouts/PublicLayout";
@@ -12,6 +13,7 @@ import { Clients } from "~/routes/Clients";
 import { Home } from "~/routes/Home";
 import { Login } from "~/routes/Login";
 import { Users } from "~/routes/Users";
+import { AuthError } from "~/utils/types";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
@@ -29,7 +31,7 @@ async function authLoader({ url }: LoaderFunctionArgs) {
   }
 
   if (!response.ok) {
-    throw new Error("Failed to check authentication");
+    throw new AuthError("Failed to check authentication");
   }
 
   return response.json();
@@ -51,6 +53,7 @@ export default function App() {
       element: <AppLayout />,
       loader: authLoader,
       HydrateFallback: LoadingScreen,
+      errorElement: <ErrorScreen />,
       children: [
         {
           path: "/",
