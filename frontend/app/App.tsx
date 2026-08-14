@@ -11,6 +11,7 @@ import { NotFound } from "~/routes/404";
 import { Clients } from "~/routes/Clients";
 import { Home } from "~/routes/Home";
 import { Login } from "~/routes/Login";
+import { Users } from "~/routes/Users";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
@@ -58,6 +59,10 @@ export default function App() {
         {
           path: "/clients",
           element: <Clients />,
+        },
+        {
+          path: "/users",
+          element: <Users />,
         },
         {
           path: "*",
