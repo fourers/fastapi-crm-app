@@ -23,14 +23,14 @@ export function CreateClientForm({ onSubmit, loading }: CreateClientFormProps) {
   return (
     <form className="container mt-4" onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-3">
-        <label htmlFor="firstName" className="form-label">
+        <label htmlFor="first_name" className="form-label">
           First Name
         </label>
         <input {...register("first_name")} id="firstName" className="form-control" />
       </div>
 
       <div className="mb-3">
-        <label htmlFor="lastName" className="form-label">
+        <label htmlFor="last_name" className="form-label">
           Last Name
         </label>
         <input {...register("last_name")} id="lastName" className="form-control" />
