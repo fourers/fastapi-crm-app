@@ -7,11 +7,11 @@ import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "re
 import { ErrorScreen } from "~/components/ErrorScreen";
 import { AppLayout } from "~/layouts/AppLayout";
 import { PublicLayout } from "~/layouts/PublicLayout";
+import { Home } from "~/routes";
 import { NotFound } from "~/routes/404";
-import { Clients } from "~/routes/Clients";
-import { Home } from "~/routes/Home";
-import { Login } from "~/routes/Login";
-import { Users } from "~/routes/Users";
+import { Clients } from "~/routes/clients";
+import { Login } from "~/routes/login";
+import { Users } from "~/routes/users";
 import { AuthError } from "~/utils/types";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
