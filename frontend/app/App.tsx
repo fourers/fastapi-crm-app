@@ -14,6 +14,8 @@ import { Login } from "~/routes/login";
 import { Users } from "~/routes/users";
 import { AuthError } from "~/utils/types";
 
+import { CreateClient } from "./routes/clients/create";
+
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
     credentials: "include",
@@ -40,6 +42,7 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
+      HydrateFallback: () => null,
       children: [
         {
           path: "/login",
@@ -52,6 +55,7 @@ export default function App() {
       loader: authLoader,
       shouldRevalidate: () => false,
       errorElement: <ErrorScreen />,
+      HydrateFallback: () => null,
       children: [
         {
           path: "/",
@@ -60,6 +64,10 @@ export default function App() {
         {
           path: "/clients",
           element: <Clients />,
+        },
+        {
+          path: "clients/create",
+          element: <CreateClient />,
         },
         {
           path: "/users",
