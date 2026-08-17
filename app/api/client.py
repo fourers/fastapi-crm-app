@@ -39,7 +39,10 @@ def get_client(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     apply_rls(db, session)
-    return db.scalars(select(Client).where(Client.id == client_id)).first()
+    client = db.scalars(select(Client).where(Client.id == client_id)).first()
+    if not client:
+        raise HTTPException(404)
+    return client
 
 
 class ClientCreate(BaseModel):

@@ -1,4 +1,4 @@
-import { useErrorStore } from "~/stores/errorStore";
+import { Status, useAppStore } from "~/stores/appStore";
 
 export async function apiFetch<T>(
   input: RequestInfo | URL,
@@ -10,17 +10,22 @@ export async function apiFetch<T>(
     if (response.ok) {
       return response.json();
     } else {
-      const text = await response.text();
-
-      useErrorStore.getState().addError({
-        status: response.status,
-        message: text || response.statusText,
+      useAppStore.getState().addMessage({
+        message: await formatResponse(response),
+        status: Status.error,
       });
     }
   } catch (error) {
-    useErrorStore.getState().addError({
+    useAppStore.getState().addMessage({
       message: error instanceof Error ? error.message : "Unknown error",
+      status: Status.error,
     });
   }
   return null;
+}
+
+async function formatResponse(response: Response): Promise<string> {
+  const prefix = response.status ? `${response.status}: ` : "";
+  const text = await response.text();
+  return `${prefix}${text || response.statusText}`;
 }

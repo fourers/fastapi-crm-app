@@ -1,6 +1,6 @@
 import { Outlet, useNavigation } from "react-router-dom";
 
-import { GlobalErrorToast } from "~/components/GlobalErrorToast";
+import { GlobalToast } from "~/components/GlobalToast";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 export function AppLayout() {
@@ -27,7 +27,7 @@ export function AppLayout() {
 
       {navigation.state === "loading" && <LoadingSpinner />}
 
-      <GlobalErrorToast />
+      <GlobalToast />
 
       <main className="container py-4">
         <Outlet />

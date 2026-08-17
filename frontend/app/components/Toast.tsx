@@ -1,16 +1,16 @@
-import { type AppError } from "~/stores/errorStore";
+import { Status } from "~/stores/appStore";
 
 interface ErrorToastProps {
-  error: AppError;
+  message: string;
+  status: Status;
   onClose: () => void;
 }
 
-export function ErrorToast({ error, onClose }: ErrorToastProps) {
-  const prefix = error.status ? `${error.status}: ` : "";
-  const message = `${prefix}${error.message}`;
+export function Toast({ message, status, onClose }: ErrorToastProps) {
+  const style = status === Status.success ? "success" : "danger";
   return (
     <div
-      className="toast show align-items-center text-bg-danger border-0"
+      className={`toast show align-items-center text-bg-${style} border-0`}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"
