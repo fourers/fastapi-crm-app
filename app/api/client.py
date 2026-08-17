@@ -32,6 +32,16 @@ def get_clients(
     return db.scalars(select(Client).order_by(Client.id)).all()
 
 
+@router.get("/client/{client_id}", response_model=ClientResponse)
+def get_client(
+    client_id: int,
+    db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
+):
+    apply_rls(db, session)
+    return db.scalars(select(Client).where(Client.id == client_id)).first()
+
+
 class ClientCreate(BaseModel):
     first_name: NullableString = None
     last_name: NullableString = None

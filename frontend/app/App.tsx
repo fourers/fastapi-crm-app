@@ -2,7 +2,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "~/app.css";
 
 import { redirect } from "react-router";
-import { createBrowserRouter, type LoaderFunctionArgs, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  type LoaderFunctionArgs,
+  RouterProvider,
+} from "react-router-dom";
 
 import { ErrorScreen } from "~/components/ErrorScreen";
 import { AppLayout } from "~/layouts/AppLayout";
@@ -15,6 +19,7 @@ import { Users } from "~/routes/users";
 import { AuthError } from "~/utils/types";
 
 import { CreateClient } from "./routes/clients/create";
+import { UpdateClient } from "./routes/clients/update";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
@@ -64,6 +69,10 @@ export default function App() {
         {
           path: "/clients",
           element: <Clients />,
+        },
+        {
+          path: "/clients/:id",
+          element: <UpdateClient />,
         },
         {
           path: "clients/create",

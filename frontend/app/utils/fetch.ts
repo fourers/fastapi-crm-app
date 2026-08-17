@@ -1,6 +1,9 @@
 import { useErrorStore } from "~/stores/errorStore";
 
-export async function apiFetch<T>(input: RequestInfo | URL, init?: RequestInit): Promise<T | null> {
+export async function apiFetch<T>(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<T | null> {
   try {
     const response = await fetch(input, init);
 

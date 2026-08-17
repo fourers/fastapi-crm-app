@@ -24,5 +24,5 @@ export function CreateClient() {
       throw navigate("/clients");
     }
   };
-  return <CreateClientForm onSubmit={onSubmit} loading={loading} />;
+  return <CreateClientForm onSubmit={onSubmit} loadingSubmit={loading} />;
 }

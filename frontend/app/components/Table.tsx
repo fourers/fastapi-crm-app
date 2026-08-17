@@ -9,7 +9,13 @@ interface TableProps {
   emptyMessage: string;
 }
 
-export function Table({ rows, loading, title, loadingMessage, emptyMessage }: TableProps) {
+export function Table({
+  rows,
+  loading,
+  title,
+  loadingMessage,
+  emptyMessage,
+}: TableProps) {
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
   return (

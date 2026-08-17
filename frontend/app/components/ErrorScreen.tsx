@@ -4,7 +4,8 @@ import { AuthError } from "~/utils/types";
 
 export function ErrorScreen() {
   const error = useRouteError() as Error;
-  const title = error instanceof AuthError ? "Authentication Error" : "Unexpected Error";
+  const title =
+    error instanceof AuthError ? "Authentication Error" : "Unexpected Error";
 
   const handleRetry = () => {
     window.location.reload();
