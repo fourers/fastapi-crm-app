@@ -32,7 +32,7 @@ export function UpdateClient() {
 
   useEffect(() => {
     loadForm();
-  }, [params]);
+  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = async (data: JSONValue) => {
     setLoadingSubmit(true);
