@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { CreateClientForm } from "~/features/clients/CreateClientForm";
+import { Status, useAppStore } from "~/stores/appStore";
 import { apiFetch } from "~/utils/fetch";
 import type { JSONValue } from "~/utils/types";
 
@@ -46,6 +47,10 @@ export function UpdateClient() {
     setLoadingSubmit(false);
     if (response !== null) {
       setClient(response);
+      useAppStore.getState().addMessage({
+        message: "Successfully updated client",
+        status: Status.success,
+      });
     }
   };
   return (

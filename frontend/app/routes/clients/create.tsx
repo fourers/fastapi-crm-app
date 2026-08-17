@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { CreateClientForm } from "~/features/clients/CreateClientForm";
+import { Status, useAppStore } from "~/stores/appStore";
 import { apiFetch } from "~/utils/fetch";
 import type { JSONValue } from "~/utils/types";
 
@@ -22,6 +23,11 @@ export function CreateClient() {
     setLoading(false);
     if (response !== null) {
       throw navigate("/clients");
+    } else {
+      useAppStore.getState().addMessage({
+        message: "Successfully created client",
+        status: Status.success,
+      });
     }
   };
   return <CreateClientForm onSubmit={onSubmit} loadingSubmit={loading} />;
