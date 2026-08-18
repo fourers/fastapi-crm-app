@@ -36,9 +36,9 @@ export function CreateClientForm({
   }, [client, reset]);
 
   return (
-    <form className="container mt-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="container" onSubmit={handleSubmit(onSubmit)}>
       <div className="mb-3">
-        <label htmlFor="first_name" className="form-label">
+        <label htmlFor="firstName" className="form-label">
           First Name
         </label>
         <input
@@ -50,7 +50,7 @@ export function CreateClientForm({
       </div>
 
       <div className="mb-3">
-        <label htmlFor="last_name" className="form-label">
+        <label htmlFor="lastName" className="form-label">
           Last Name
         </label>
         <input
@@ -76,7 +76,7 @@ export function CreateClientForm({
 
       <button
         type="submit"
-        className="btn btn-primary"
+        className="btn btn-primary mt-3"
         disabled={!isDirty || loadingSubmit}
       >
         Save
