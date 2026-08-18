@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "~/app.css";
 
+import { QueryClientProvider } from "@tanstack/react-query";
 import { redirect } from "react-router";
 import {
   createBrowserRouter,
@@ -14,12 +15,12 @@ import { PublicLayout } from "~/layouts/PublicLayout";
 import { Home } from "~/routes";
 import { NotFound } from "~/routes/404";
 import { Clients } from "~/routes/clients";
+import { CreateClient } from "~/routes/clients/create";
+import { UpdateClient } from "~/routes/clients/update";
 import { Login } from "~/routes/login";
 import { Users } from "~/routes/users";
+import { queryClient } from "~/utils/queryClient";
 import { AuthError } from "~/utils/types";
-
-import { CreateClient } from "./routes/clients/create";
-import { UpdateClient } from "./routes/clients/update";
 
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
@@ -90,5 +91,9 @@ export default function App() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }

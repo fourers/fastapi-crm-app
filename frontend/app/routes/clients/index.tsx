@@ -1,20 +1,14 @@
-import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { ClientTable } from "~/features/clients/ClientTable";
-import { useClientStore } from "~/stores/clientStore";
+import { type Client } from "~/stores/clientStore";
+import { apiFetch } from "~/utils/fetch";
 
 export function Clients() {
-  const clients = useClientStore((state) => state.data);
-  const loading = useClientStore((state) => state.loading);
-  const loadClients = useClientStore((state) => state.loadData);
+  const { data: clients, isLoading } = useQuery({
+    queryKey: ["clientsList"],
+    queryFn: async () => await apiFetch<Client[]>("/api/client"),
+  });
 
-  useEffect(() => {
-    loadClients();
-  }, [loadClients]);
-
-  return (
-    <>
-      <ClientTable clients={clients} loading={loading} />
-    </>
-  );
+  return <ClientTable clients={clients ?? []} loading={isLoading} />;
 }

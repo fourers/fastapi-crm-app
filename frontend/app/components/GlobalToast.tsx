@@ -16,6 +16,7 @@ export function GlobalToast() {
       {messages.map((message) => {
         return (
           <Toast
+            key={message.id}
             message={message.message}
             status={message.status}
             onClose={() => useAppStore.getState().removeMessage(message.id)}

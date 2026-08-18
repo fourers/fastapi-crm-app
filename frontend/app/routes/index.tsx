@@ -6,12 +6,21 @@ export function Home() {
       </h1>
 
       <div className="d-flex justify-content-center p-3">
-        <div style={{ width: "100%", maxWidth: "200px" }}>
-          <a href="/clients" className="btn btn-secondary btn-lg w-100 mb-3">
-            View Clients
+        <div
+          className="list-group"
+          style={{ width: "100%", maxWidth: "250px" }}
+        >
+          <a
+            href="/clients"
+            className="list-group-item list-group-item-action text-center"
+          >
+            Clients
           </a>
-          <a href="/users" className="btn btn-secondary btn-lg w-100">
-            View Users
+          <a
+            href="/users"
+            className="list-group-item list-group-item-action text-center"
+          >
+            Users
           </a>
         </div>
       </div>

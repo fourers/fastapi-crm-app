@@ -1,27 +1,14 @@
-import { Status, useAppStore } from "~/stores/appStore";
-
 export async function apiFetch<T>(
   input: RequestInfo | URL,
   init?: RequestInit,
-): Promise<T | null> {
-  try {
-    const response = await fetch(input, init);
+): Promise<T> {
+  const response = await fetch(input, init);
 
-    if (response.ok) {
-      return response.json();
-    } else {
-      useAppStore.getState().addMessage({
-        message: await formatResponse(response),
-        status: Status.error,
-      });
-    }
-  } catch (error) {
-    useAppStore.getState().addMessage({
-      message: error instanceof Error ? error.message : "Unknown error",
-      status: Status.error,
-    });
+  if (!response.ok) {
+    throw new Error(await formatResponse(response));
   }
-  return null;
+
+  return response.json();
 }
 
 async function formatResponse(response: Response): Promise<string> {
