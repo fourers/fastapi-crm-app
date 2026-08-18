@@ -1,64 +1,64 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Navigate, useParams } from "react-router-dom";
 
 import { CreateClientForm } from "~/features/clients/CreateClientForm";
-import { Status, useAppStore } from "~/stores/appStore";
 import { apiFetch } from "~/utils/fetch";
 import type { JSONValue } from "~/utils/types";
 
+async function getClient(clientId: string): Promise<JSONValue> {
+  return apiFetch<JSONValue>(`/api/client/${clientId}`);
+}
+
+function useClient(clientId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ["client", clientId],
+    queryFn: () => getClient(clientId ?? ""),
+    enabled: enabled,
+  });
+}
+
+async function updateClient(clientId: string, data: JSONValue) {
+  return await apiFetch<JSONValue>(`/api/client/${clientId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+function useUpdateClient(clientId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: JSONValue) => updateClient(clientId, data),
+
+    onSuccess: (updatedClient) => {
+      queryClient.setQueryData(["client", clientId], updatedClient);
+    },
+  });
+}
+
 export function UpdateClient() {
-  const params = useParams();
-  const navigate = useNavigate();
-  const [loadingForm, setLoadingForm] = useState(false);
-  const [client, setClient] = useState<JSONValue | null>(null);
-  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const { id: clientId } = useParams<{ id: string }>();
 
-  const clientId = Number.parseInt(params.id || "");
+  const {
+    data: client,
+    isLoading: formIsLoading,
+    error: formError,
+  } = useClient(clientId, Number.isInteger(Number(clientId)));
+  const { mutate, isPending: submitIsLoading } = useUpdateClient(clientId!);
 
-  const loadForm = async () => {
-    setLoadingForm(true);
-    if (!Number.isInteger(clientId)) {
-      throw navigate("/clients");
-    }
+  if (!Number.isInteger(Number(clientId))) {
+    return <Navigate to="/clients" />;
+  }
 
-    const response = await apiFetch<JSONValue>(`/api/client/${clientId}`);
-
-    setLoadingForm(false);
-    if (response === null) {
-      throw navigate("/clients");
-    }
-    setClient(response);
-  };
-
-  useEffect(() => {
-    loadForm();
-  }, [params]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const onSubmit = async (data: JSONValue) => {
-    setLoadingSubmit(true);
-    const response = await apiFetch<JSONValue>(`/api/client/${clientId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    setLoadingSubmit(false);
-    if (response !== null) {
-      setClient(response);
-      useAppStore.getState().addMessage({
-        message: "Successfully updated client",
-        status: Status.success,
-      });
-    }
-  };
   return (
     <CreateClientForm
       client={client}
-      onSubmit={onSubmit}
-      loadingForm={loadingForm}
-      loadingSubmit={loadingSubmit}
+      onSubmit={async (data) => mutate(data)}
+      loadingForm={formIsLoading || (!!formError && !client)}
+      loadingSubmit={submitIsLoading}
     />
   );
 }

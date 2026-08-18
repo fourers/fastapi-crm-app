@@ -2,7 +2,7 @@ import { Toast } from "~/components/Toast";
 import { useAppStore } from "~/stores/appStore";
 
 export function GlobalToast() {
-  const messages = useAppStore((state) => state.messages);
+  const { messages } = useAppStore();
 
   if (messages.length === 0) {
     return null;
