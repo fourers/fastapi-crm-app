@@ -12,7 +12,7 @@ export function CreateClient() {
 
   const onSubmit = async (data: JSONValue) => {
     setLoading(true);
-    const response = await apiFetch("/api/client", {
+    const response = await apiFetch<JSONValue>("/api/client", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,12 +22,11 @@ export function CreateClient() {
 
     setLoading(false);
     if (response !== null) {
-      throw navigate("/clients");
-    } else {
       useAppStore.getState().addMessage({
         message: "Successfully created client",
         status: Status.success,
       });
+      throw navigate(`/clients/${response.id}`);
     }
   };
   return <CreateClientForm onSubmit={onSubmit} loadingSubmit={loading} />;

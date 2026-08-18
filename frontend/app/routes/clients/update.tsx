@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Navigate, useParams } from "react-router-dom";
 
 import { CreateClientForm } from "~/features/clients/CreateClientForm";
+import { Status, useAppStore } from "~/stores/appStore";
 import { apiFetch } from "~/utils/fetch";
 import type { JSONValue } from "~/utils/types";
 
@@ -35,6 +36,10 @@ function useUpdateClient(clientId: string) {
 
     onSuccess: (updatedClient) => {
       queryClient.setQueryData(["client", clientId], updatedClient);
+      useAppStore.getState().addMessage({
+        message: "Successfully updated client",
+        status: Status.success,
+      });
     },
   });
 }
