@@ -1,5 +1,5 @@
 import { LoadingSpinner } from "~/components/LoadingSpinner";
-import { type Client } from "~/stores/clientStore";
+import { type Client } from "~/features/clients/api/types";
 
 interface TableProps {
   clients: Client[];
@@ -30,6 +30,7 @@ export function ClientTable({ clients, loading }: TableProps) {
                     <th scope="col">Last Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">Owner Id</th>
+                    <th scope="col"></th>
                   </tr>
                 ) : null}
               </thead>
@@ -49,6 +50,9 @@ export function ClientTable({ clients, loading }: TableProps) {
                       <td>{client.last_name}</td>
                       <td>{client.email}</td>
                       <td>{client.owner_id}</td>
+                      <td className="text-nowrap" style={{ width: "1%" }}>
+                        <a href={`/clients/${client.id}`}>View</a>
+                      </td>
                     </tr>
                   ))}
               </tbody>

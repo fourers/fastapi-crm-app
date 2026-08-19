@@ -1,22 +1,14 @@
-import { useEffect } from "react";
-
 import { Table } from "~/components/Table";
-import { useUserStore } from "~/stores/userStore";
+import { useListUsers } from "~/features/users/api/queries";
 
 export function Users() {
-  const users = useUserStore((state) => state.data);
-  const loading = useUserStore((state) => state.loading);
-  const loadUsers = useUserStore((state) => state.loadData);
-
-  useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
+  const { data: users, isLoading } = useListUsers();
 
   return (
     <>
       <Table
-        rows={users}
-        loading={loading}
+        rows={users ?? []}
+        loading={isLoading}
         title="Users"
         loadingMessage="Loading users..."
         emptyMessage="No users found."
