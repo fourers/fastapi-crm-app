@@ -1,3 +1,4 @@
+import os
 import time
 
 import click
@@ -13,8 +14,8 @@ load_dotenv()
 TEST_ENDPOINT = "http://localhost:8000"
 KC_URL = "http://localhost:8080"
 KC_REALM = "myapp"
-KC_CLIENT_ID = "fastapi"
-KC_CLIENT_SECRET = "VERY_SECRET_CLIENT_SECRET"
+KC_CLIENT_ID = "click-cli"
+KC_CLIENT_SECRET = os.environ["CLICK_CLI_SECRET"]
 
 fake = Faker()
 
