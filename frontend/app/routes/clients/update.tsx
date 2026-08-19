@@ -2,7 +2,9 @@ import { Navigate, useParams } from "react-router-dom";
 
 import { useUpdateClient } from "~/features/clients/api/mutations";
 import { useGetClient } from "~/features/clients/api/queries";
+import { ClientHeader } from "~/features/clients/components/ClientHeader";
 import { CreateClientForm } from "~/features/clients/components/CreateClientForm";
+import { formatName } from "~/utils/formatter";
 
 export function UpdateClient() {
   const { id: clientId } = useParams<{ id: string }>();
@@ -19,11 +21,14 @@ export function UpdateClient() {
   }
 
   return (
-    <CreateClientForm
-      client={client}
-      onSubmit={async (data) => mutate(data)}
-      loadingForm={formIsLoading || (!!formError && !client)}
-      loadingSubmit={submitIsLoading}
-    />
+    <>
+      <ClientHeader sectionName={formatName(client)} />
+      <CreateClientForm
+        client={client}
+        onSubmit={async (data) => mutate(data)}
+        loadingForm={formIsLoading || (!!formError && !client)}
+        loadingSubmit={submitIsLoading}
+      />
+    </>
   );
 }
