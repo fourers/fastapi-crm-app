@@ -2,8 +2,8 @@ import { Navigate, useParams } from "react-router-dom";
 
 import { useUpdateClient } from "~/features/clients/api/mutations";
 import { useGetClient } from "~/features/clients/api/queries";
+import { ClientForm } from "~/features/clients/components/ClientForm";
 import { ClientHeader } from "~/features/clients/components/ClientHeader";
-import { CreateClientForm } from "~/features/clients/components/CreateClientForm";
 import { formatName } from "~/utils/formatter";
 
 export function UpdateClient() {
@@ -23,7 +23,7 @@ export function UpdateClient() {
   return (
     <>
       <ClientHeader sectionName={formatName(client)} />
-      <CreateClientForm
+      <ClientForm
         client={client}
         onSubmit={async (data) => mutate(data)}
         loadingForm={formIsLoading || (!!formError && !client)}

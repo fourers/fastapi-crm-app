@@ -8,11 +8,7 @@ interface TableProps {
 
 export function ClientTable({ clients, loading }: TableProps) {
   return (
-    <div className="card shadow-sm">
-      <div className="card-header">
-        <h5 className="mb-0">Clients</h5>
-      </div>
-
+    <div className="card">
       <div className="card-body">
         {loading ? (
           <div id="loading" className="text-center py-4">
@@ -22,7 +18,7 @@ export function ClientTable({ clients, loading }: TableProps) {
         ) : (
           <div id="table-container" className="table-responsive">
             <table className="table table-hover align-middle mb-0">
-              <thead id="table-head">
+              <thead className="table-active" id="table-head">
                 {clients.length > 0 ? (
                   <tr>
                     <th scope="col">#</th>

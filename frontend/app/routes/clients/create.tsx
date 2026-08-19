@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 
 import { useCreateClient } from "~/features/clients/api/mutations";
+import { ClientForm } from "~/features/clients/components/ClientForm";
 import { ClientHeader } from "~/features/clients/components/ClientHeader";
-import { CreateClientForm } from "~/features/clients/components/CreateClientForm";
 import type { JSONValue } from "~/utils/types";
 
 export function CreateClient() {
@@ -19,7 +19,7 @@ export function CreateClient() {
   return (
     <>
       <ClientHeader sectionName="Create" />
-      <CreateClientForm onSubmit={onSubmit} loadingSubmit={isPending} />
+      <ClientForm onSubmit={onSubmit} loadingSubmit={isPending} />
     </>
   );
 }
