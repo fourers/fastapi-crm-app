@@ -5,7 +5,7 @@ import type { JSONValue } from "~/utils/types";
 
 interface CreateClientFormProps {
   client?: JSONValue | null;
-  onSubmit: (data: JSONValue) => Promise<void>;
+  onSubmit: (data: JSONValue) => void;
   loadingForm?: boolean;
   loadingSubmit: boolean;
 }

@@ -1,33 +1,19 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { CreateClientForm } from "~/features/clients/CreateClientForm";
-import { Status, useAppStore } from "~/stores/appStore";
-import { apiFetch } from "~/utils/fetch";
+import { useCreateClient } from "~/features/clients/api/mutations";
+import { CreateClientForm } from "~/features/clients/components/CreateClientForm";
 import type { JSONValue } from "~/utils/types";
 
 export function CreateClient() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { mutate, isPending } = useCreateClient();
 
-  const onSubmit = async (data: JSONValue) => {
-    setLoading(true);
-    const response = await apiFetch<JSONValue>("/api/client", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  const onSubmit = (data: JSONValue) =>
+    mutate(data, {
+      onSuccess: (data) => {
+        navigate(`/clients/${data.id}`);
       },
-      body: JSON.stringify(data),
     });
 
-    setLoading(false);
-    if (response !== null) {
-      useAppStore.getState().addMessage({
-        message: "Successfully created client",
-        status: Status.success,
-      });
-      throw navigate(`/clients/${response.id}`);
-    }
-  };
-  return <CreateClientForm onSubmit={onSubmit} loadingSubmit={loading} />;
+  return <CreateClientForm onSubmit={onSubmit} loadingSubmit={isPending} />;
 }
