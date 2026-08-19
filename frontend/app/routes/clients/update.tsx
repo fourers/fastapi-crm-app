@@ -6,9 +6,14 @@ import { ClientForm } from "~/features/clients/components/ClientForm";
 import { ClientHeader } from "~/features/clients/components/ClientHeader";
 import { formatName } from "~/utils/formatter";
 
+const isPositiveInteger = (value: string | undefined): boolean => {
+  const numberValue = Number(value);
+  return Number.isInteger(numberValue) && numberValue > 0;
+}
+
 export function UpdateClient() {
   const { id: clientId } = useParams<{ id: string }>();
-  const validClientId = Number.isInteger(Number(clientId));
+  const validClientId = isPositiveInteger(clientId);
   const {
     data: client,
     isLoading: formIsLoading,
