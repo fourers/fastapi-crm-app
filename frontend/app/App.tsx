@@ -19,8 +19,9 @@ import { CreateClient } from "~/routes/clients/create";
 import { UpdateClient } from "~/routes/clients/update";
 import { Login } from "~/routes/login";
 import { Users } from "~/routes/users";
+import { getSessionQuery } from "~/utils/auth";
 import { queryClient } from "~/utils/queryClient";
-import { AuthError } from "~/utils/types";
+import { ApiError, AuthError } from "~/utils/types";
 
 const loginLoader = async () => {
   try {
@@ -37,25 +38,24 @@ const loginLoader = async () => {
 };
 
 const authLoader = async ({ url }: LoaderFunctionArgs) => {
-  const response = await fetch("/auth/me", {
-    credentials: "include",
-  });
-
-  if (response.status === 401) {
-    if (url.pathname === "/") {
-      return redirect("/login");
+  try {
+    return await queryClient.ensureQueryData(getSessionQuery());
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) {
+      if (url.pathname === "/") {
+        return redirect("/login");
+      } else {
+        return redirect(
+          `/login?next=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
+        );
+      }
+    }
+    if (error instanceof ApiError) {
+      throw error;
     } else {
-      return redirect(
-        `/login?next=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
-      );
+      throw new AuthError("Failed to check authentication");
     }
   }
-
-  if (!response.ok) {
-    throw new AuthError("Failed to check authentication");
-  }
-
-  return response.json();
 };
 
 const App = () => {
@@ -74,7 +74,6 @@ const App = () => {
     {
       element: <AppLayout />,
       loader: authLoader,
-      shouldRevalidate: () => false,
       errorElement: <ErrorScreen />,
       HydrateFallback: () => null,
       children: [

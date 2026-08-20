@@ -5,3 +5,12 @@ export class AuthError extends Error {
     super(message, options);
   }
 }
+
+export class ApiError extends Error {
+  constructor(
+    public status: number,
+    public responseText: string,
+  ) {
+    super(responseText);
+  }
+}

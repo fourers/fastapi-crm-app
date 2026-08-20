@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from "react-router-dom";
+import { Link, Outlet, useNavigation } from "react-router-dom";
 
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
@@ -9,9 +9,9 @@ export const PublicLayout = () => {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container align-items-center justify-content-center">
-          <a className="navbar-brand" href="/">
+          <Link className="navbar-brand" to="/">
             FastAPI CRM
-          </a>
+          </Link>
         </div>
       </nav>
 

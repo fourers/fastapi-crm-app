@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from "react-router-dom";
+import { Link, Outlet, useNavigation } from "react-router-dom";
 
 import { GlobalToast } from "~/components/GlobalToast";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
@@ -10,9 +10,9 @@ export const AppLayout = () => {
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container">
-          <a className="navbar-brand" href="/">
+          <Link className="navbar-brand" to="/">
             FastAPI CRM
-          </a>
+          </Link>
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
               <form method="post" action="/auth/logout">

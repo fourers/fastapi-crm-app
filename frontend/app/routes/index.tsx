@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export const Home = () => {
   return (
     <>
@@ -10,18 +12,18 @@ export const Home = () => {
           className="list-group"
           style={{ width: "100%", maxWidth: "250px" }}
         >
-          <a
-            href="/clients"
+          <Link
+            to="/clients"
             className="list-group-item list-group-item-action text-center"
           >
             Clients
-          </a>
-          <a
-            href="/users"
+          </Link>
+          <Link
+            to="/users"
             className="list-group-item list-group-item-action text-center"
           >
             Users
-          </a>
+          </Link>
         </div>
       </div>
     </>

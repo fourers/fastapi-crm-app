@@ -1,4 +1,4 @@
-import type { JSONValue } from "~/utils/types";
+import { ApiError, type JSONValue } from "~/utils/types";
 
 export const apiFetch = async <T>(
   input: RequestInfo | URL,
@@ -7,7 +7,7 @@ export const apiFetch = async <T>(
   const response = await fetch(input, init);
 
   if (!response.ok) {
-    throw new Error(await formatResponse(response));
+    throw new ApiError(response.status, await formatResponse(response));
   }
 
   return response.json();

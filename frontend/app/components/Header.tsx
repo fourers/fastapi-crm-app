@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { type HeaderPath } from "~/utils/breadcrumbs";
 
 interface HeaderProps {
@@ -10,7 +12,7 @@ export const Header = ({ parents, currentPage }: HeaderProps) => (
     <ol className="breadcrumb">
       {parents.map((parent) => (
         <li className="breadcrumb-item">
-          <a href={parent.href}>{parent.displayName}</a>
+          <Link to={parent.href}>{parent.displayName}</Link>
         </li>
       ))}
       <li className="breadcrumb-item active" aria-current="page">

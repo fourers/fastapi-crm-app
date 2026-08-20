@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { type Client } from "~/features/clients/api/types";
 
@@ -46,7 +48,7 @@ export const ClientTable = ({ clients, loading }: TableProps) => {
                     <td>{client.email}</td>
                     <td>{client.owner_id}</td>
                     <td className="text-nowrap" style={{ width: "1%" }}>
-                      <a href={`/clients/${client.id}`}>View</a>
+                      <Link to={`/clients/${client.id}`}>View</Link>
                     </td>
                   </tr>
                 ))}
