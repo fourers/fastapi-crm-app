@@ -1,4 +1,4 @@
-import { useRouteError } from "react-router-dom";
+import { Link, useRouteError } from "react-router-dom";
 
 import { AuthError } from "~/utils/types";
 
@@ -23,9 +23,9 @@ export const ErrorScreen = () => {
           <button className="btn btn-dark w-100" onClick={handleRetry}>
             Reload
           </button>
-          <a href="/login" className="btn btn-dark w-100">
+          <Link to="/login" className="btn btn-dark w-100">
             Login
-          </a>
+          </Link>
         </div>
       </div>
     </div>

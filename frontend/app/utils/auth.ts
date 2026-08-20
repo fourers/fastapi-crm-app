@@ -19,3 +19,11 @@ export const getSessionQuery = () =>
     queryFn: () => getSession(),
     staleTime: 5 * 60 * 1000,
   });
+
+export const getSessionAlwaysQuery = () =>
+  queryOptions({
+    queryKey: ["auth", "me"],
+    queryFn: () => getSession(),
+    staleTime: 0,
+    gcTime: 0,
+  });

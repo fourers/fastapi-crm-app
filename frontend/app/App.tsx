@@ -19,19 +19,14 @@ import { CreateClient } from "~/routes/clients/create";
 import { UpdateClient } from "~/routes/clients/update";
 import { Login } from "~/routes/login";
 import { Users } from "~/routes/users";
-import { getSessionQuery } from "~/utils/auth";
+import { getSessionAlwaysQuery, getSessionQuery } from "~/utils/auth";
 import { queryClient } from "~/utils/queryClient";
 import { ApiError, AuthError } from "~/utils/types";
 
 const loginLoader = async () => {
   try {
-    const response = await fetch("/auth/me", {
-      credentials: "include",
-    });
-
-    if (response.ok) {
-      return redirect("/");
-    }
+    await queryClient.ensureQueryData(getSessionAlwaysQuery());
+    return redirect("/");
   } catch {
     // Do nothing
   }
