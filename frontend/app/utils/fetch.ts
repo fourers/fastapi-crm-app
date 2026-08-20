@@ -14,21 +14,21 @@ export const apiFetch = async <T>(
 };
 
 const formatResponse = async (response: Response): Promise<string> => {
-  const prefix = response.status ? `${response.status}: ` : "";
+  const prefix = `${response.status} Error`;
 
   const payload = await response.json().catch(() => null);
   if (payload?.detail) {
     if (Array.isArray(payload.detail)) {
-      return `${prefix}${payload.detail
+      return `${prefix}\n${payload.detail
         .map((item: JSONValue) => item.summary ?? JSON.stringify(item))
-        .join("; ")}`;
+        .join("\n")}`;
     }
 
     if (typeof payload.detail === "string") {
-      return `${prefix}${payload.detail}`;
+      return `${prefix}\n${payload.detail}`;
     }
   }
 
   const text = await response.text();
-  return `${prefix}${text ?? response.statusText}`;
+  return `${prefix}\n${text ?? response.statusText}`;
 };

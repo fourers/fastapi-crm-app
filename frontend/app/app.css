@@ -1,0 +1,17 @@
+.toast-message {
+  width: min(100%, 32rem);
+  max-width: 32rem;
+}
+
+.toast-message .toast-body {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.toast-message .d-flex {
+  align-items: flex-start;
+}
+
+.toast-message .btn-close {
+  flex: 0 0 auto;
+}

@@ -19,7 +19,7 @@ export const CreateClient = () => {
 
   return (
     <>
-      <Header parents={headerPaths.clients()} currentPage="<Create>" />
+      <Header parents={headerPaths.clients()} currentPage="Create New Client" />
       <ClientForm onSubmit={onSubmit} loadingSubmit={isPending} />
     </>
   );

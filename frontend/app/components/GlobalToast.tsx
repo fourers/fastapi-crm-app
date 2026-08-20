@@ -10,10 +10,10 @@ export const GlobalToast = () => {
 
   return (
     <div
-      className="toast-container position-fixed top-0 start-50 translate-middle-x p-5"
+      className="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
       style={{ zIndex: 1080 }}
     >
-      {messages.map((message) => {
+      {messages.reverse().map((message) => {
         return (
           <Toast
             key={message.id}

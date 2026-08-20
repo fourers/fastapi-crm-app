@@ -34,4 +34,8 @@ def format_field_name(values: list[str]) -> str:
         return "unknown"
     if len(values) == 1:
         return values[0]
-    return f"[{values[0]}] {'.'.join(values[1:])}"
+
+    if values[0] == "body":
+        return ".".join(values[1:])
+    else:
+        return ".".join(values)

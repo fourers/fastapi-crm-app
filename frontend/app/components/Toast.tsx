@@ -10,7 +10,7 @@ export const Toast = ({ message, status, onClose }: ErrorToastProps) => {
   const style = status === Status.success ? "success" : "danger";
   return (
     <div
-      className={`toast show align-items-center text-bg-${style} border-0`}
+      className={`toast show toast-message align-items-center text-bg-${style} border-0`}
       role="alert"
       aria-live="assertive"
       aria-atomic="true"

@@ -1,15 +1,19 @@
-import { QueryCache, QueryClient } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
 import { Status, useAppStore } from "~/stores/appStore";
 
+export const commonErrorHandler = (error: Error) =>
+  useAppStore.getState().addMessage({
+    status: Status.error,
+    message: error.message,
+  });
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
-    onError: (error) => {
-      useAppStore.getState().addMessage({
-        status: Status.error,
-        message: error.message,
-      });
-    },
+    onError: commonErrorHandler,
+  }),
+  mutationCache: new MutationCache({
+    onError: commonErrorHandler,
   }),
   defaultOptions: {
     queries: {
