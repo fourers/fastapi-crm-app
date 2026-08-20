@@ -19,6 +19,7 @@ export const queryClient = new QueryClient({
     queries: {
       retry: false,
       staleTime: Infinity,
+      refetchOnMount: "always",
     },
   },
 });
