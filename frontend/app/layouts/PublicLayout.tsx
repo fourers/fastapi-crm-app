@@ -2,7 +2,7 @@ import { Outlet, useNavigation } from "react-router-dom";
 
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
-export function PublicLayout() {
+export const PublicLayout = () => {
   const navigation = useNavigation();
 
   return (
@@ -22,4 +22,4 @@ export function PublicLayout() {
       </main>
     </>
   );
-}
+};

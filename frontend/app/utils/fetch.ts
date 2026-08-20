@@ -1,9 +1,9 @@
 import type { JSONValue } from "~/utils/types";
 
-export async function apiFetch<T>(
+export const apiFetch = async <T>(
   input: RequestInfo | URL,
   init?: RequestInit,
-): Promise<T> {
+): Promise<T> => {
   const response = await fetch(input, init);
 
   if (!response.ok) {
@@ -11,9 +11,9 @@ export async function apiFetch<T>(
   }
 
   return response.json();
-}
+};
 
-async function formatResponse(response: Response): Promise<string> {
+const formatResponse = async (response: Response): Promise<string> => {
   const prefix = response.status ? `${response.status}: ` : "";
 
   const payload = await response.json().catch(() => null);
@@ -31,4 +31,4 @@ async function formatResponse(response: Response): Promise<string> {
 
   const text = await response.text();
   return `${prefix}${text ?? response.statusText}`;
-}
+};

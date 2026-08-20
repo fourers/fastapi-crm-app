@@ -22,7 +22,7 @@ import { Users } from "~/routes/users";
 import { queryClient } from "~/utils/queryClient";
 import { AuthError } from "~/utils/types";
 
-async function loginLoader() {
+const loginLoader = async () => {
   try {
     const response = await fetch("/auth/me", {
       credentials: "include",
@@ -34,9 +34,9 @@ async function loginLoader() {
   } catch {
     // Do nothing
   }
-}
+};
 
-async function authLoader({ url }: LoaderFunctionArgs) {
+const authLoader = async ({ url }: LoaderFunctionArgs) => {
   const response = await fetch("/auth/me", {
     credentials: "include",
   });
@@ -56,9 +56,9 @@ async function authLoader({ url }: LoaderFunctionArgs) {
   }
 
   return response.json();
-}
+};
 
-export default function App() {
+const App = () => {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
@@ -111,4 +111,6 @@ export default function App() {
       <RouterProvider router={router} />
     </QueryClientProvider>
   );
-}
+};
+
+export default App;

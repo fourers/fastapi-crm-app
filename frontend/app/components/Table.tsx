@@ -9,13 +9,13 @@ interface TableProps {
   emptyMessage: string;
 }
 
-export function Table({
+export const Table = ({
   rows,
   loading,
   title,
   loadingMessage,
   emptyMessage,
-}: TableProps) {
+}: TableProps) => {
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
   return (
@@ -65,4 +65,4 @@ export function Table({
       </div>
     </div>
   );
-}
+};

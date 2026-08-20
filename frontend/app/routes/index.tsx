@@ -1,4 +1,4 @@
-export function Home() {
+export const Home = () => {
   return (
     <>
       <h1 className="display-5 pt-3 pb-3" style={{ textAlign: "center" }}>
@@ -26,4 +26,4 @@ export function Home() {
       </div>
     </>
   );
-}
+};

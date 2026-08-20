@@ -2,7 +2,7 @@ import { useRouteError } from "react-router-dom";
 
 import { AuthError } from "~/utils/types";
 
-export function ErrorScreen() {
+export const ErrorScreen = () => {
   const error = useRouteError() as Error;
   const title =
     error instanceof AuthError ? "Authentication Error" : "Unexpected Error";
@@ -30,4 +30,4 @@ export function ErrorScreen() {
       </div>
     </div>
   );
-}
+};

@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 
-export function Login() {
+export const Login = () => {
   const [searchParams] = useSearchParams();
 
   const next = searchParams.get("next");
@@ -26,4 +26,4 @@ export function Login() {
       </div>
     </div>
   );
-}
+};

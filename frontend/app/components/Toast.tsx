@@ -6,7 +6,7 @@ interface ErrorToastProps {
   onClose: () => void;
 }
 
-export function Toast({ message, status, onClose }: ErrorToastProps) {
+export const Toast = ({ message, status, onClose }: ErrorToastProps) => {
   const style = status === Status.success ? "success" : "danger";
   return (
     <div
@@ -26,4 +26,4 @@ export function Toast({ message, status, onClose }: ErrorToastProps) {
       </div>
     </div>
   );
-}
+};

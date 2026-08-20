@@ -1,7 +1,7 @@
 import { Table } from "~/components/Table";
 import { useListUsers } from "~/features/users/api/queries";
 
-export function Users() {
+export const Users = () => {
   const { data: users, isLoading } = useListUsers();
 
   return (
@@ -15,4 +15,4 @@ export function Users() {
       />
     </>
   );
-}
+};

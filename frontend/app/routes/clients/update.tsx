@@ -12,7 +12,7 @@ const isPositiveInteger = (value: string | undefined): boolean => {
   return Number.isInteger(numberValue) && numberValue > 0;
 };
 
-export function UpdateClient() {
+export const UpdateClient = () => {
   const { id: clientId } = useParams<{ id: string }>();
   const validClientId = isPositiveInteger(clientId);
   const {
@@ -40,4 +40,4 @@ export function UpdateClient() {
       />
     </>
   );
-}
+};

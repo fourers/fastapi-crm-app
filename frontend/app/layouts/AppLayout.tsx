@@ -3,7 +3,7 @@ import { Outlet, useNavigation } from "react-router-dom";
 import { GlobalToast } from "~/components/GlobalToast";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
-export function AppLayout() {
+export const AppLayout = () => {
   const navigation = useNavigation();
 
   return (
@@ -34,4 +34,4 @@ export function AppLayout() {
       </main>
     </>
   );
-}
+};

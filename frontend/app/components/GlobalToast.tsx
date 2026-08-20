@@ -1,7 +1,7 @@
 import { Toast } from "~/components/Toast";
 import { useAppStore } from "~/stores/appStore";
 
-export function GlobalToast() {
+export const GlobalToast = () => {
   const { messages } = useAppStore();
 
   if (messages.length === 0) {
@@ -25,4 +25,4 @@ export function GlobalToast() {
       })}
     </div>
   );
-}
+};

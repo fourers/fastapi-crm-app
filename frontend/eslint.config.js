@@ -32,6 +32,8 @@ export default [
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
       "prettier/prettier": "error",
+      "prefer-arrow-callback": "error",
+      "func-style": ["error", "expression", { allowArrowFunctions: true }],
     },
     settings: {
       react: { version: "detect" },

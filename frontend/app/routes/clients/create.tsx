@@ -6,7 +6,7 @@ import { ClientForm } from "~/features/clients/components/ClientForm";
 import { headerPaths } from "~/utils/breadcrumbs";
 import type { JSONValue } from "~/utils/types";
 
-export function CreateClient() {
+export const CreateClient = () => {
   const navigate = useNavigate();
   const { mutate, isPending } = useCreateClient();
 
@@ -23,4 +23,4 @@ export function CreateClient() {
       <ClientForm onSubmit={onSubmit} loadingSubmit={isPending} />
     </>
   );
-}
+};

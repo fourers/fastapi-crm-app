@@ -10,12 +10,12 @@ interface ClientFormProps {
   loadingSubmit: boolean;
 }
 
-export function ClientForm({
+export const ClientForm = ({
   client,
   onSubmit,
   loadingForm = false,
   loadingSubmit,
-}: ClientFormProps) {
+}: ClientFormProps) => {
   const {
     register,
     handleSubmit,
@@ -87,4 +87,4 @@ export function ClientForm({
       </div>
     </div>
   );
-}
+};

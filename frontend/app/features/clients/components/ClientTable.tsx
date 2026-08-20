@@ -6,7 +6,7 @@ interface TableProps {
   loading: boolean;
 }
 
-export function ClientTable({ clients, loading }: TableProps) {
+export const ClientTable = ({ clients, loading }: TableProps) => {
   return (
     <>
       {loading ? (
@@ -56,4 +56,4 @@ export function ClientTable({ clients, loading }: TableProps) {
       )}
     </>
   );
-}
+};

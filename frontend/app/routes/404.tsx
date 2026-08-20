@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 
-export function NotFound() {
+export const NotFound = () => {
   const location = useLocation();
 
   return (
@@ -9,4 +9,4 @@ export function NotFound() {
       <h1 className="display-5">Page not found: {location.pathname}</h1>
     </div>
   );
-}
+};
