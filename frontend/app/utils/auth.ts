@@ -26,4 +26,5 @@ export const getSessionAlwaysQuery = () =>
     queryFn: () => getSession(),
     staleTime: 0,
     gcTime: 0,
+    refetchOnMount: true,
   });
