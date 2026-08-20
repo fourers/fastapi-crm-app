@@ -22,6 +22,20 @@ import { Users } from "~/routes/users";
 import { queryClient } from "~/utils/queryClient";
 import { AuthError } from "~/utils/types";
 
+async function loginLoader() {
+  try {
+    const response = await fetch("/auth/me", {
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      return redirect("/");
+    }
+  } catch {
+    // Do nothing
+  }
+}
+
 async function authLoader({ url }: LoaderFunctionArgs) {
   const response = await fetch("/auth/me", {
     credentials: "include",
@@ -29,9 +43,9 @@ async function authLoader({ url }: LoaderFunctionArgs) {
 
   if (response.status === 401) {
     if (url.pathname === "/") {
-      throw redirect("/login");
+      return redirect("/login");
     } else {
-      throw redirect(
+      return redirect(
         `/login?next=${encodeURIComponent(`${url.pathname}${url.search}${url.hash}`)}`,
       );
     }
@@ -48,6 +62,7 @@ export default function App() {
   const router = createBrowserRouter([
     {
       element: <PublicLayout />,
+      loader: loginLoader,
       HydrateFallback: () => null,
       children: [
         {
