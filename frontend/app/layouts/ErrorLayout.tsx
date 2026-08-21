@@ -1,8 +1,8 @@
 import { Link, useRouteError } from "react-router-dom";
 
-import { AuthError } from "~/utils/types";
+import { AuthError } from "~/lib/types";
 
-export const ErrorScreen = () => {
+export const ErrorLayout = () => {
   const error = useRouteError() as Error;
   const title =
     error instanceof AuthError ? "Authentication Error" : "Unexpected Error";

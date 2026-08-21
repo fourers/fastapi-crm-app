@@ -1,8 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { apiFetch } from "~/utils/fetch";
+import { apiFetch } from "~/lib/fetch";
 
-interface UserSession {
+export interface UserSession {
   id: number;
   username: string;
 }

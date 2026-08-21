@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
-import { Status, useAppStore } from "~/stores/appStore";
+import { Status, useAppStore } from "~/lib/appStore";
 
 const commonErrorHandler = (error: Error) =>
   useAppStore.getState().addMessage({

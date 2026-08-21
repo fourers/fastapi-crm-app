@@ -1,5 +1,5 @@
 import { LoadingSpinner } from "~/components/LoadingSpinner";
-import type { JSONValue } from "~/utils/types";
+import type { JSONValue } from "~/lib/types";
 
 interface TableProps {
   rows: JSONValue[];

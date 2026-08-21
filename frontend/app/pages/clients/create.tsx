@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "~/components/Header";
 import { useCreateClient } from "~/features/clients/api/mutations";
 import { ClientForm } from "~/features/clients/components/ClientForm";
-import { headerPaths } from "~/utils/breadcrumbs";
-import type { JSONValue } from "~/utils/types";
+import { headerPaths } from "~/lib/breadcrumbs";
+import type { JSONValue } from "~/lib/types";
 
 export const CreateClient = () => {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import type { JSONValue } from "~/utils/types";
+import type { JSONValue } from "~/lib/types";
 
 export const formatName = (data: JSONValue | undefined) => {
   const firstName = data?.first_name;

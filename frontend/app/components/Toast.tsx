@@ -1,4 +1,4 @@
-import { Status } from "~/stores/appStore";
+import { Status } from "~/lib/appStore";
 
 interface ErrorToastProps {
   message: string;

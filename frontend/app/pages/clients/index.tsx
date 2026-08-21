@@ -1,7 +1,7 @@
 import { Header } from "~/components/Header";
 import { useListClients } from "~/features/clients/api/queries";
 import { ClientTable } from "~/features/clients/components/ClientTable";
-import { headerPaths } from "~/utils/breadcrumbs";
+import { headerPaths } from "~/lib/breadcrumbs";
 
 export const Clients = () => {
   const { data: clients, isLoading } = useListClients();

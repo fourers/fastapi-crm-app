@@ -1,5 +1,5 @@
 import { Toast } from "~/components/Toast";
-import { useAppStore } from "~/stores/appStore";
+import { useAppStore } from "~/lib/appStore";
 
 export const GlobalToast = () => {
   const { messages } = useAppStore();

@@ -1,4 +1,4 @@
-import { ApiError, type JSONValue } from "~/utils/types";
+import { ApiError, type JSONValue } from "~/lib/types";
 
 export const apiFetch = async <T>(
   input: RequestInfo | URL,

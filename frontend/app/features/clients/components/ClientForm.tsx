@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import type { JSONValue } from "~/utils/types";
+import type { JSONValue } from "~/lib/types";
 
 interface ClientFormProps {
   client?: JSONValue | null;

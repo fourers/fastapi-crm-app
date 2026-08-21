@@ -1,5 +1,5 @@
-import { apiFetch } from "~/utils/fetch";
-import type { JSONValue } from "~/utils/types";
+import { apiFetch } from "~/lib/fetch";
+import type { JSONValue } from "~/lib/types";
 
 export const listUsers = async (): Promise<JSONValue[]> =>
   await apiFetch<JSONValue[]>("/api/client");

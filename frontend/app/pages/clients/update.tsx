@@ -4,8 +4,8 @@ import { Header } from "~/components/Header";
 import { useUpdateClient } from "~/features/clients/api/mutations";
 import { useGetClient } from "~/features/clients/api/queries";
 import { ClientForm } from "~/features/clients/components/ClientForm";
-import { headerPaths } from "~/utils/breadcrumbs";
-import { formatName } from "~/utils/formatter";
+import { headerPaths } from "~/lib/breadcrumbs";
+import { formatName } from "~/lib/formatter";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
   const numberValue = Number(value);

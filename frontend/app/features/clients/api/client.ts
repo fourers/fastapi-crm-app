@@ -1,6 +1,6 @@
 import { type Client } from "~/features/clients/api/types";
-import { apiFetch } from "~/utils/fetch";
-import { type JSONValue } from "~/utils/types";
+import { apiFetch } from "~/lib/fetch";
+import { type JSONValue } from "~/lib/types";
 
 export const listClients = async (): Promise<Client[]> =>
   await apiFetch<Client[]>("/api/client");

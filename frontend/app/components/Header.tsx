@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { type HeaderPath } from "~/utils/breadcrumbs";
+import { type HeaderPath } from "~/lib/breadcrumbs";
 
 interface HeaderProps {
   parents: HeaderPath[];
