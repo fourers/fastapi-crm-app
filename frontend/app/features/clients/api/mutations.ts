@@ -11,7 +11,7 @@ export const useCreateClient = () =>
 
     onSuccess: () => {
       useAppStore.getState().addMessage({
-        message: "Successfully created client",
+        message: "New client was created",
         status: Status.success,
       });
     },
@@ -26,7 +26,7 @@ export const useUpdateClient = (clientId: string) => {
     onSuccess: (data) => {
       queryClient.setQueryData(clientKeys.detail(clientId), data);
       useAppStore.getState().addMessage({
-        message: "Successfully updated client",
+        message: "Client was updated",
         status: Status.success,
       });
     },

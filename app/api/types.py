@@ -1,9 +1,9 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import EmailStr, StringConstraints
 
-NullableString = Annotated[str | None, StringConstraints(min_length=1, max_length=100)]
+NullableString = Annotated[str | None, StringConstraints(max_length=100)]
 
 NullableEmailString = Annotated[
-    EmailStr | None, StringConstraints(min_length=1, max_length=255)
+    EmailStr | Literal[""] | None, StringConstraints(max_length=255)
 ]
