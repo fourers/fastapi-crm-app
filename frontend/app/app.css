@@ -15,3 +15,7 @@
 .toast-message .btn-close {
   flex: 0 0 auto;
 }
+
+.table {
+  border-top: var(--bs-border-width) solid var(--bs-table-border-color);
+}

@@ -48,7 +48,7 @@ export const ClientTable = ({ clients, loading }: TableProps) => {
                     <td>{client.email}</td>
                     <td>{client.owner_id}</td>
                     <td className="text-nowrap" style={{ width: "1%" }}>
-                      <Link to={`/clients/${client.id}`}>View</Link>
+                      <Link to={`/clients/${client.id}`}>Edit</Link>
                     </td>
                   </tr>
                 ))}
