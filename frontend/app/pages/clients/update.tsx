@@ -5,7 +5,7 @@ import { useUpdateClient } from "~/features/clients/api/mutations";
 import { useGetClient } from "~/features/clients/api/queries";
 import { ClientForm } from "~/features/clients/components/ClientForm";
 import { headerPaths } from "~/lib/breadcrumbs";
-import { formatName } from "~/lib/formatter";
+import { formatName } from "~/lib/formatters";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
   const numberValue = Number(value);

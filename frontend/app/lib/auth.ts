@@ -22,7 +22,7 @@ export const getSessionQuery = () =>
 
 export const getSessionAlwaysQuery = () =>
   queryOptions({
-    queryKey: ["auth", "me"],
+    queryKey: authKeys,
     queryFn: () => getSession(),
     staleTime: 0,
     gcTime: 0,

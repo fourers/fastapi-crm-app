@@ -10,7 +10,7 @@ import { CreateClient } from "~/pages/clients/create";
 import { UpdateClient } from "~/pages/clients/update";
 import { Login } from "~/pages/login";
 import { Users } from "~/pages/users";
-import { authLoader, loginLoader } from "~/router/loader";
+import { authLoader, loginLoader } from "~/router/loaders";
 
 export const routes: RouteObject[] = [
   {
