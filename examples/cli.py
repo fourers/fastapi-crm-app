@@ -196,5 +196,38 @@ def token(user: str, password: str):
             click.secho("\nEnding session...", fg="yellow")
 
 
+@cli.command("random-group")
+@user_password_options
+def random_group(user: str, password: str):
+    with TestSession(user, password) as session:
+        name = fake.company()
+        response = session.client.post(
+            f"{TEST_ENDPOINT}/api/group",
+            json={
+                "name": name,
+            },
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        print_json(data=response.json())
+
+
+@cli.command
+@user_password_options
+@click.option("--group-id", "-g", "group_id", required=True, type=int)
+@click.option("--user-id", "-u", "user_id", required=True, type=int)
+def group_relationship(user: str, password: str, group_id: int, user_id: int):
+    with TestSession(user, password) as session:
+        response = session.client.put(
+            f"{TEST_ENDPOINT}/api/group/{group_id}/user/{user_id}",
+            headers=session.headers,
+        )
+        response.raise_for_status()
+        if response.text:
+            print_json(data=response.json())
+        else:
+            click.echo(response.text)
+
+
 if __name__ == "__main__":
     cli()

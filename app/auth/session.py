@@ -37,7 +37,9 @@ def create_session(user_session: UserSession) -> None:
     )
 
 
-def get_session(session_type: SessionType, session_id: str) -> UserSession | None:
+def get_cached_session(
+    session_type: SessionType, session_id: str
+) -> UserSession | None:
     redis = get_client()
     session = redis.get(f"{session_type}:{session_id}")
     if session is not None:

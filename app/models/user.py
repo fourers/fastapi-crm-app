@@ -4,9 +4,11 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+from app.models.group_associations import group_users
 
 if TYPE_CHECKING:
     from app.models.client import Client
+    from app.models.group import Group
 
 
 class User(Base):
@@ -20,3 +22,8 @@ class User(Base):
     last_name: Mapped[str] = mapped_column(String(100), nullable=True)
 
     clients: Mapped[list["Client"]] = relationship(back_populates="owner")
+
+    groups: Mapped[list["Group"]] = relationship(
+        secondary=group_users,
+        back_populates="users",
+    )

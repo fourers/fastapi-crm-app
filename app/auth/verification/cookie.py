@@ -12,7 +12,7 @@ from app.auth.session import (
     delete_session,
     log_session_to_state,
 )
-from app.auth.session import get_session as get_user_session
+from app.auth.session import get_cached_session as get_user_session
 from app.utils.keycloak import get_oauth2_client
 
 

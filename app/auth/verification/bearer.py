@@ -8,7 +8,7 @@ from app.auth.session import (
     SessionType,
     UserSession,
     create_session,
-    get_session,
+    get_cached_session,
     log_session_to_state,
 )
 from app.auth.user import get_user_by_id
@@ -63,7 +63,7 @@ async def validate_bearer_token(request: Request, token: str) -> UserSession | N
         logger.warning("Failed to validate token", exc_info=True)
         return None
 
-    session = get_session(SessionType.BEARER, sha_256(token))
+    session = get_cached_session(SessionType.BEARER, sha_256(token))
     if session is not None:
         log_session_to_state(request, session)
         return session
