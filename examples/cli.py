@@ -1,5 +1,6 @@
 import os
 import time
+from functools import wraps
 
 import click
 import httpx
@@ -66,6 +67,16 @@ class TestSession:
 def user_password_options(func):
     func = click.option("--user", default="admin", type=click.STRING)(func)
     return click.option("--password", default="password", type=click.STRING)(func)
+
+
+def with_test_session(func):
+    @user_password_options
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        with TestSession(kwargs.pop("user"), kwargs.pop("password")) as session:
+            return func(*args, session=session, **kwargs)
+
+    return wrapper
 
 
 @click.group()
@@ -213,20 +224,46 @@ def random_group(user: str, password: str):
 
 
 @cli.command
-@user_password_options
+@with_test_session
 @click.option("--group-id", "-g", "group_id", required=True, type=int)
 @click.option("--user-id", "-u", "user_id", required=True, type=int)
-def group_relationship(user: str, password: str, group_id: int, user_id: int):
-    with TestSession(user, password) as session:
-        response = session.client.put(
-            f"{TEST_ENDPOINT}/api/group/{group_id}/user/{user_id}",
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        if response.text:
-            print_json(data=response.json())
-        else:
-            click.echo(response.text)
+def group_relationship(session: TestSession, group_id: int, user_id: int):
+    response = session.client.put(
+        f"{TEST_ENDPOINT}/api/group/{group_id}/user/{user_id}",
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    if response.text:
+        print_json(data=response.json())
+    else:
+        click.echo(response.text)
+
+
+@cli.command
+@with_test_session
+@click.option("--group-id", "-g", "group_id", required=True, type=int)
+@click.option("--parent-id", "-p", "parent_id", required=True, type=int)
+def group_parent(session: TestSession, group_id: int, parent_id: int):
+    response = session.client.put(
+        f"{TEST_ENDPOINT}/api/group/{group_id}/parent/{parent_id}",
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    if response.text:
+        print_json(data=response.json())
+    else:
+        click.echo(response.text)
+
+
+@cli.command
+@with_test_session
+def list_groups(session: TestSession):
+    response = session.client.get(
+        f"{TEST_ENDPOINT}/api/group",
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 if __name__ == "__main__":
