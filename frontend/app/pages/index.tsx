@@ -24,6 +24,12 @@ export const Home = () => {
           >
             Users
           </Link>
+          <Link
+            to="/groups"
+            className="list-group-item list-group-item-action text-center"
+          >
+            Groups
+          </Link>
         </div>
       </div>
     </>

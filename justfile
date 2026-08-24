@@ -16,6 +16,9 @@ format:
 init:
     scripts/init.sh
 
+init_data:
+    cd examples && uv run init_data.py
+
 install:
     scripts/install.sh
 

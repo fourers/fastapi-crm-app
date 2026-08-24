@@ -8,6 +8,7 @@ import { NotFound } from "~/pages/404";
 import { Clients } from "~/pages/clients";
 import { CreateClient } from "~/pages/clients/create";
 import { UpdateClient } from "~/pages/clients/update";
+import { Groups } from "~/pages/groups";
 import { Login } from "~/pages/login";
 import { Users } from "~/pages/users";
 import { authLoader, loginLoader } from "~/router/loaders";
@@ -49,6 +50,10 @@ export const routes: RouteObject[] = [
       {
         path: "/users",
         element: <Users />,
+      },
+      {
+        path: "/groups",
+        element: <Groups />,
       },
       {
         path: "*",
