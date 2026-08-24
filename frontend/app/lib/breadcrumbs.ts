@@ -10,4 +10,9 @@ export const headerPaths = {
       ...headerPaths.home(),
       { href: "/clients", displayName: "Clients" },
     ] as HeaderPath[],
+  groups: () =>
+    [
+      ...headerPaths.home(),
+      { href: "/groups", displayName: "Groups" },
+    ] as HeaderPath[],
 };

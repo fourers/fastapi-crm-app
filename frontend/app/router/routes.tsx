@@ -9,6 +9,7 @@ import { Clients } from "~/pages/clients";
 import { CreateClient } from "~/pages/clients/create";
 import { UpdateClient } from "~/pages/clients/update";
 import { Groups } from "~/pages/groups";
+import { UpdateGroup } from "~/pages/groups/update";
 import { Login } from "~/pages/login";
 import { Users } from "~/pages/users";
 import { authLoader, loginLoader } from "~/router/loaders";
@@ -44,7 +45,7 @@ export const routes: RouteObject[] = [
         element: <UpdateClient />,
       },
       {
-        path: "clients/create",
+        path: "/clients/create",
         element: <CreateClient />,
       },
       {
@@ -54,6 +55,10 @@ export const routes: RouteObject[] = [
       {
         path: "/groups",
         element: <Groups />,
+      },
+      {
+        path: "/groups/:id",
+        element: <UpdateGroup />,
       },
       {
         path: "*",

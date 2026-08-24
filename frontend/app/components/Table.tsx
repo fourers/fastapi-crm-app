@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import type { JSONValue } from "~/lib/types";
 
@@ -6,6 +8,7 @@ interface TableProps {
   loading: boolean;
   loadingMessage: string;
   emptyMessage: string;
+  editButtonLink?: (data: JSONValue) => string;
 }
 
 export const Table = ({
@@ -13,6 +16,7 @@ export const Table = ({
   loading,
   loadingMessage,
   emptyMessage,
+  editButtonLink,
 }: TableProps) => {
   const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
@@ -32,6 +36,7 @@ export const Table = ({
                   {columns.map((column) => (
                     <th scope="col">{column}</th>
                   ))}
+                  {editButtonLink && <th scope="col"></th>}
                 </tr>
               ) : null}
             </thead>
@@ -42,6 +47,11 @@ export const Table = ({
                     {columns.map((column) => (
                       <td>{row[column]}</td>
                     ))}
+                    {editButtonLink && (
+                      <td className="text-nowrap" style={{ width: "1%" }}>
+                        <Link to={editButtonLink(row)}>Edit</Link>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (

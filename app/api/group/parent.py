@@ -62,7 +62,9 @@ def update_parent_of_group(
 
     parent_group = db.get(Group, parent_id)
     if not parent_group:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Parent group not found"
+        )
 
     if would_create_parent_cycle(group_id, parent_group):
         raise HTTPException(
