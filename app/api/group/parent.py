@@ -35,7 +35,7 @@ def would_create_parent_cycle(
 
         visited.add(current_id)
 
-        current_group = parent_group.parent_group
+        current_group = current_group.parent_group
 
     return False
 

@@ -1,7 +1,7 @@
 import { Navigate, useParams } from "react-router-dom";
 
 import { Header } from "~/components/Header";
-import { useUpdateClient } from "~/features/clients/api/mutations";
+import { useUpdateGroup } from "~/features/groups/api/mutations";
 import { useGetGroup } from "~/features/groups/api/queries";
 import { GroupForm } from "~/features/groups/components/GroupForm";
 import { headerPaths } from "~/lib/breadcrumbs";
@@ -19,7 +19,7 @@ export const UpdateGroup = () => {
     isLoading: formIsLoading,
     error: formError,
   } = useGetGroup(id!, validId);
-  const { mutate, isPending: submitIsLoading } = useUpdateClient(id!);
+  const { mutate, isPending: submitIsLoading } = useUpdateGroup(id!);
 
   if (!validId) {
     return <Navigate to="/groups" />;
