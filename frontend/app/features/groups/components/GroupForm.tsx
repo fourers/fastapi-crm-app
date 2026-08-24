@@ -28,7 +28,7 @@ export const GroupForm = ({
   });
 
   useEffect(() => {
-    if (group !== null) {
+    if (group) {
       reset(group);
     }
   }, [group, reset]);
