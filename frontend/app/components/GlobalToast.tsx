@@ -13,7 +13,7 @@ export const GlobalToast = () => {
       className="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
       style={{ zIndex: 1080 }}
     >
-      {messages.reverse().map((message) => {
+      {messages.map((message) => {
         return (
           <Toast
             key={message.id}

@@ -17,7 +17,11 @@ interface GroupFormProps {
 }
 
 export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
-  const { data: groups = [], isLoading: dropdownLoading } = useListGroups();
+  const {
+    data: groups = [],
+    isLoading: dropdownLoading,
+    isFetched: dropdownFetched,
+  } = useListGroups();
   const { mutate, isPending } = useUpdateGroup(groupId);
 
   const { register, handleSubmit, reset, getFieldState, formState } =
@@ -31,13 +35,14 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
   const { isDirty: parentChanged } = getFieldState("parent_id", formState);
 
   useEffect(() => {
-    if (group) {
-      reset({
-        ...group,
-        parent_id: group.parent_id === null ? "" : String(group.parent_id),
-      } as unknown as GroupInputs);
+    if (!group || !dropdownFetched) {
+      return;
     }
-  }, [group, reset]);
+    reset({
+      ...group,
+      parent_id: group.parent_id === null ? "" : String(group.parent_id),
+    } as unknown as GroupInputs);
+  }, [group, dropdownFetched, reset]);
 
   const onSubmit = (data: GroupInputs) => {
     mutate({
@@ -47,7 +52,7 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
     });
   };
 
-  const formIsLoading = isLoading || dropdownLoading;
+  const formIsLoading = isLoading || dropdownLoading || !dropdownFetched;
 
   return (
     <div className="card">
