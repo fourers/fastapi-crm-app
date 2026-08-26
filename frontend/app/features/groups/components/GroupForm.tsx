@@ -1,37 +1,34 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import { useUpdateGroupParent } from "~/features/groups/api/mutations";
+import { useUpdateGroup } from "~/features/groups/api/mutations";
 import { useListGroups } from "~/features/groups/api/queries";
 import type { JSONValue } from "~/lib/types";
 
+type GroupInputs = {
+  name: string;
+  parent_id: string;
+};
+
 interface GroupFormProps {
-  group?: JSONValue | null;
-  onSubmit: (data: JSONValue) => void;
-  loadingForm?: boolean;
-  loadingSubmit: boolean;
+  groupId: string;
+  group: JSONValue | undefined;
+  isLoading: boolean;
 }
 
-export const GroupForm = ({
-  group,
-  onSubmit,
-  loadingForm = false,
-  loadingSubmit,
-}: GroupFormProps) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { isDirty },
-  } = useForm({
-    defaultValues: {
-      name: "",
-    },
-  });
-  const { data: groups = [], isLoading: groupsLoading } = useListGroups();
-  const groupId = group?.id?.toString() ?? "";
-  const { mutate: updateParent, isPending: parentUpdating } =
-    useUpdateGroupParent(groupId);
+export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
+  const { data: groups = [], isLoading: dropdownLoading } = useListGroups();
+  const { mutate, isPending } = useUpdateGroup(groupId);
+
+  const { register, handleSubmit, reset, getFieldState, formState } =
+    useForm<GroupInputs>({
+      defaultValues: {
+        name: "",
+        parent_id: "",
+      },
+    });
+
+  const { isDirty: parentChanged } = getFieldState("parent_id", formState);
 
   useEffect(() => {
     if (group) {
@@ -39,59 +36,59 @@ export const GroupForm = ({
     }
   }, [group, reset]);
 
+  const onSubmit = (data: GroupInputs) => {
+    mutate({
+      group: data,
+      parentId: data.parent_id,
+      parentChanged: parentChanged,
+    });
+  };
+
   return (
     <div className="card">
       <div className="card-body">
-        <div className="container">
-          <label htmlFor="parent_id" className="form-label">
-            Parent Group
-          </label>
-
-          <select
-            id="parent_id"
-            className="form-select mb-3"
-            value={group?.parent_id?.toString() ?? ""}
-            disabled={
-              loadingForm || groupsLoading || parentUpdating || !groupId
-            }
-            onChange={(event) => {
-              const value = event.target.value;
-              updateParent(value === "" ? null : Number(value));
-            }}
-          >
-            <option value="">{"<No Parent>"}</option>
-
-            {groups
-              .filter((candidate) => candidate.id?.toString() !== groupId)
-              .map((candidate) => (
-                <option
-                  key={candidate.id?.toString()}
-                  value={candidate.id?.toString()}
-                >
-                  {candidate.name?.toString() ?? "Unnamed group"}
-                </option>
-              ))}
-          </select>
-        </div>
-      </div>
-      <div className="card-body border-top">
         <form className="container" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
-            <label htmlFor="name" className="form-label">
+            <label htmlFor="parent_id" className="form-label">
+              Parent Group
+            </label>
+
+            <select
+              id="parent_id"
+              {...register("parent_id")}
+              className="form-select mb-3"
+              disabled={isLoading || dropdownLoading}
+            >
+              <option value="">{"<No Parent>"}</option>
+
+              {groups
+                .filter((candidate) => candidate.id?.toString() !== groupId)
+                .map((candidate) => (
+                  <option
+                    key={candidate.id?.toString()}
+                    value={candidate.id?.toString()}
+                  >
+                    {candidate.name?.toString() ?? "Unnamed group"}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <div className="mb-3">
+            <label htmlFor="group_name" className="form-label">
               Group Name
             </label>
             <input
               {...register("name")}
-              id="name"
+              id="group_name"
               className="form-control"
-              disabled={loadingForm}
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={!isDirty || loadingSubmit}
+            disabled={!formState.isDirty || isLoading || isPending}
           >
             Save
           </button>

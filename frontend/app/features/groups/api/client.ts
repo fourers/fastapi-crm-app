@@ -21,7 +21,7 @@ export const updateGroup = async (
 
 export const updateGroupParent = async (
   groupId: string,
-  parentId: number,
+  parentId: string,
 ): Promise<JSONValue | null> =>
   apiFetchNullable<JSONValue>(`/api/group/${groupId}/parent/${parentId}`, {
     method: "PUT",

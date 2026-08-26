@@ -13,33 +13,31 @@ export const useUpdateGroup = (groupId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: JSONValue) => updateGroup(groupId, data),
+    mutationFn: async ({
+      group,
+      parentId,
+      parentChanged,
+    }: {
+      group: JSONValue;
+      parentId: string;
+      parentChanged: boolean;
+    }) => {
+      if (parentChanged) {
+        if (parentId === "") {
+          await removeGroupParent(groupId);
+        } else {
+          await updateGroupParent(groupId, parentId);
+        }
+      }
+
+      return updateGroup(groupId, group);
+    },
 
     onSuccess: (data) => {
       queryClient.setQueryData(groupKeys.detail(groupId), data);
       useAppStore.getState().addMessage({
         message: "Group was updated",
         status: Status.success,
-      });
-    },
-  });
-};
-
-export const useUpdateGroupParent = (groupId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (parentId: number | null) =>
-      parentId === null
-        ? removeGroupParent(groupId)
-        : updateGroupParent(groupId, parentId),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: groupKeys.detail(groupId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: groupKeys.lists(),
       });
     },
   });
