@@ -11,7 +11,7 @@ export const Groups = () => {
     <>
       <Header parents={headerPaths.home()} currentPage="Groups" />
       <Table
-        rows={data ?? []}
+        rows={(data as unknown as JSONValue[]) ?? []}
         loading={isLoading}
         loadingMessage="Loading groups..."
         emptyMessage="No groups found."

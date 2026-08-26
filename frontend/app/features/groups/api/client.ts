@@ -1,17 +1,18 @@
+import { type Group } from "~/features/groups/api/types";
 import { apiFetch, apiFetchNullable } from "~/lib/fetch";
 import type { JSONValue } from "~/lib/types";
 
-export const listGroups = async (): Promise<JSONValue[]> =>
-  await apiFetch<JSONValue[]>("/api/group");
+export const listGroups = async (): Promise<Group[]> =>
+  await apiFetch<Group[]>("/api/group");
 
-export const getGroup = async (groupId: string): Promise<JSONValue> =>
-  await apiFetch<JSONValue>(`/api/group/${groupId}`);
+export const getGroup = async (groupId: string): Promise<Group> =>
+  await apiFetch<Group>(`/api/group/${groupId}`);
 
 export const updateGroup = async (
   groupId: string,
   data: JSONValue,
-): Promise<JSONValue> =>
-  apiFetch<JSONValue>(`/api/group/${groupId}`, {
+): Promise<Group> =>
+  apiFetch<Group>(`/api/group/${groupId}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

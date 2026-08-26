@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 
 import { useUpdateGroup } from "~/features/groups/api/mutations";
 import { useListGroups } from "~/features/groups/api/queries";
-import type { JSONValue } from "~/lib/types";
+import { type Group } from "~/features/groups/api/types";
 
 type GroupInputs = {
   name: string;
@@ -12,7 +12,7 @@ type GroupInputs = {
 
 interface GroupFormProps {
   groupId: string;
-  group: JSONValue | undefined;
+  group: Group | undefined;
   isLoading: boolean;
 }
 
@@ -32,17 +32,22 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
 
   useEffect(() => {
     if (group) {
-      reset(group);
+      reset({
+        ...group,
+        parent_id: group.parent_id === null ? "" : String(group.parent_id),
+      } as unknown as GroupInputs);
     }
   }, [group, reset]);
 
   const onSubmit = (data: GroupInputs) => {
     mutate({
       group: data,
-      parentId: data.parent_id,
+      parentId: data.parent_id ?? "",
       parentChanged: parentChanged,
     });
   };
+
+  const formIsLoading = isLoading || dropdownLoading;
 
   return (
     <div className="card">
@@ -57,18 +62,15 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
               id="parent_id"
               {...register("parent_id")}
               className="form-select mb-3"
-              disabled={isLoading || dropdownLoading}
+              disabled={formIsLoading}
             >
               <option value="">{"<No Parent>"}</option>
 
               {groups
-                .filter((candidate) => candidate.id?.toString() !== groupId)
+                .filter((candidate) => candidate.id.toString() !== groupId)
                 .map((candidate) => (
-                  <option
-                    key={candidate.id?.toString()}
-                    value={candidate.id?.toString()}
-                  >
-                    {candidate.name?.toString() ?? "Unnamed group"}
+                  <option key={candidate.id} value={candidate.id}>
+                    {candidate.name ?? "Unnamed group"}
                   </option>
                 ))}
             </select>
@@ -81,14 +83,14 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
               {...register("name")}
               id="group_name"
               className="form-control"
-              disabled={isLoading}
+              disabled={formIsLoading}
             />
           </div>
 
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={!formState.isDirty || isLoading || isPending}
+            disabled={!formState.isDirty || formIsLoading || isPending}
           >
             Save
           </button>
