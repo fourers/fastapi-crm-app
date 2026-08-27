@@ -34,3 +34,6 @@ export const removeGroupParent = async (
   apiFetchNullable<JSONValue>(`/api/group/${groupId}/parent`, {
     method: "DELETE",
   });
+
+export const listGroupUsers = async (groupId: string): Promise<Group> =>
+  await apiFetch<Group>(`/api/group/${groupId}/user`);

@@ -3,6 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 import { Header } from "~/components/Header";
 import { useGetGroup } from "~/features/groups/api/queries";
 import { GroupForm } from "~/features/groups/components/GroupForm";
+import { GroupUserTable } from "~/features/groups/components/GroupUserTable";
 import { headerPaths } from "~/lib/breadcrumbs";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
@@ -30,6 +31,10 @@ export const UpdateGroup = () => {
         group={group}
         isLoading={isLoading || (!!error && !group)}
       />
+      <div className="mt-4">
+        <p className="fs-5 fw-light">Users</p>
+        <GroupUserTable groupId={id!} />
+      </div>
     </>
   );
 };

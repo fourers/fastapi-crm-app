@@ -15,7 +15,8 @@ router = APIRouter()
 
 class UserSummary(BaseModel):
     id: int
-    username: str
+    first_name: str | None
+    last_name: str | None
 
 
 @router.get(

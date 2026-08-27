@@ -12,6 +12,18 @@ fake = Faker()
 class TestClient:
     client: Client
 
+    def random_client(self) -> int:
+        first_name = fake.first_name()
+        last_name = fake.last_name()
+        response = self.client.create_client(
+            {
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": f"{first_name}.{last_name}@example.com".lower(),
+            },
+        )
+        return response["id"]
+
     def random_user(self) -> int:
         first_name = fake.first_name()
         last_name = fake.last_name()
@@ -49,12 +61,18 @@ def init():
     with get_client() as client:
         test_client = TestClient(client)
 
+        for _ in range(10):
+            test_client.random_client()
+
         for _ in range(5):
             new_group = test_client.random_group()
 
             for _ in range(2):
                 child_group = test_client.random_group()
                 client.set_parent_of_group(new_group, child_group)
+
+                new_user = test_client.random_user()
+                client.add_user_to_group(new_user, new_group)
 
 
 if __name__ == "__main__":

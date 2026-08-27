@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { getGroup, listGroups } from "~/features/groups/api/client";
+import {
+  getGroup,
+  listGroups,
+  listGroupUsers,
+} from "~/features/groups/api/client";
 import { groupKeys } from "~/features/groups/api/keys";
 
 export const useListGroups = () =>
@@ -14,4 +18,10 @@ export const useGetGroup = (groupId: string, enabled: boolean) =>
     queryKey: groupKeys.detail(groupId),
     queryFn: () => getGroup(groupId),
     enabled: enabled,
+  });
+
+export const useListGroupUsers = (groupId: string) =>
+  useQuery({
+    queryKey: groupKeys.user(groupId),
+    queryFn: () => listGroupUsers(groupId),
   });
