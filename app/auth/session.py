@@ -1,9 +1,10 @@
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
+from typing import Annotated
 
 from fastapi import Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.utils.redis import get_client
 
@@ -26,6 +27,7 @@ class UserSession(BaseModel):
     idle_expiration: datetime
     refresh_token: str
     id_token: str
+    created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(UTC))]
 
 
 def create_session(user_session: UserSession) -> None:

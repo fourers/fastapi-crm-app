@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
+from secrets import token_urlsafe
 
 from authlib.integrations.base_client.errors import OAuthError
 from fastapi import Request, Response
@@ -10,9 +11,10 @@ from app.auth.session import (
     UserSession,
     create_session,
     delete_session,
+    get_cached_session,
     log_session_to_state,
 )
-from app.auth.session import get_cached_session as get_user_session
+from app.models.user import User
 from app.utils.keycloak import get_oauth2_client
 
 
@@ -60,7 +62,7 @@ async def _refresh_session(
 async def validate_session_id(
     request: Request, session_id: str, response: Response
 ) -> UserSession | None:
-    session = get_user_session(SessionType.COOKIE, session_id)
+    session = get_cached_session(SessionType.COOKIE, session_id)
     if session is None:
         return None
     log_session_to_state(request, session)
@@ -69,3 +71,20 @@ async def validate_session_id(
         return await _refresh_session(session, response)
     else:
         return session
+
+
+def create_cookie_session(token: dict, user: User, idle_timeout: int) -> UserSession:
+    now = datetime.now(UTC)
+    session_id = token_urlsafe(32)
+    session = UserSession(
+        session_id=session_id,
+        type=SessionType.COOKIE,
+        id=user.id,
+        username=user.username,
+        expiration=now + timedelta(seconds=token["expires_in"]),
+        idle_expiration=now + timedelta(seconds=idle_timeout),
+        refresh_token=token["refresh_token"],
+        id_token=token["id_token"],
+    )
+    create_session(session)
+    return session

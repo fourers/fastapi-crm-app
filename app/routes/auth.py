@@ -1,12 +1,11 @@
 import logging
-import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Annotated
 
 from authlib.integrations.base_client.errors import OAuthError
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.auth.client import get_oauth_client
 from app.auth.handler import (
@@ -18,11 +17,11 @@ from app.auth.session import (
     SSO_IDLE_TIMEOUT_SECONDS,
     SessionType,
     UserSession,
-    create_session,
     delete_session,
     log_session_to_state,
 )
 from app.auth.user import get_user_by_id
+from app.auth.verification.cookie import create_cookie_session
 
 logger = logging.getLogger(__name__)
 
@@ -49,19 +48,7 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
         logger.warning(f"Unable to find user: {sub}")
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    now = datetime.now(timezone.utc)
-    session_id = secrets.token_urlsafe(32)
-    session = UserSession(
-        session_id=session_id,
-        type=SessionType.COOKIE,
-        id=user.id,
-        username=user.username,
-        expiration=now + timedelta(seconds=token["expires_in"]),
-        idle_expiration=now + timedelta(seconds=SSO_IDLE_TIMEOUT_SECONDS),
-        refresh_token=token["refresh_token"],
-        id_token=token["id_token"],
-    )
-    create_session(session)
+    session = create_cookie_session(token, user, SSO_IDLE_TIMEOUT_SECONDS)
     log_session_to_state(request, session)
 
     redirect_path = request.query_params.get("next", "/")
@@ -70,7 +57,7 @@ def _create_session_from_claims(request: Request, token: dict) -> RedirectRespon
     response = RedirectResponse(redirect_path)
     response.set_cookie(
         "session_id",
-        session_id,
+        session.session_id,
         expires=session.idle_expiration,
         max_age=SSO_IDLE_TIMEOUT_SECONDS,
         httponly=True,
@@ -124,7 +111,8 @@ async def logout_callback(
 class SessionResponse(BaseModel):
     id: int
     username: str
-    expiration: datetime
+    created_at: datetime
+    refresh_at: Annotated[datetime, Field(alias="expiration")]
 
 
 @router.get("/me", response_model=SessionResponse)
