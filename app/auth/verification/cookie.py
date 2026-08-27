@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from secrets import token_urlsafe
 
 from authlib.integrations.base_client.errors import OAuthError
@@ -26,7 +26,7 @@ async def _refresh_token(session: UserSession, response: Response) -> UserSessio
     )
     session.refresh_token = refresh_response["refresh_token"]
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     session.expiration = now + timedelta(seconds=refresh_response["expires_in"])
     session.idle_expiration = now + timedelta(seconds=SSO_IDLE_TIMEOUT_SECONDS)
 
@@ -66,7 +66,7 @@ async def validate_session_id(
     if session is None:
         return None
     log_session_to_state(request, session)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if session.expiration < now:
         return await _refresh_session(session, response)
     else:
