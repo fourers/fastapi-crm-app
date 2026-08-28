@@ -46,7 +46,7 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
 
   const onSubmit = (data: GroupInputs) => {
     mutate({
-      group: data,
+      group: { name: data.name as string },
       parentId: data.parent_id ?? "",
       parentChanged: parentChanged,
     });

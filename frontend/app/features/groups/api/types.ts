@@ -4,6 +4,10 @@ export interface Group {
   parent_id: number | null;
 }
 
+export interface GroupInput {
+  name: string;
+}
+
 export interface UserSummary {
   id: number;
   first_name: string;

@@ -6,8 +6,8 @@ import {
   updateGroupParent,
 } from "~/features/groups/api/client";
 import { groupKeys } from "~/features/groups/api/keys";
+import { type GroupInput } from "~/features/groups/api/types";
 import { Status, useAppStore } from "~/lib/appStore";
-import { type JSONValue } from "~/lib/types";
 
 export const useUpdateGroup = (groupId: string) => {
   const queryClient = useQueryClient();
@@ -18,7 +18,7 @@ export const useUpdateGroup = (groupId: string) => {
       parentId,
       parentChanged,
     }: {
-      group: JSONValue;
+      group: GroupInput;
       parentId: string;
       parentChanged: boolean;
     }) => {

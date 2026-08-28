@@ -1,4 +1,4 @@
-import { type Group } from "~/features/groups/api/types";
+import { type Group, type GroupInput } from "~/features/groups/api/types";
 import { apiFetch, apiFetchNullable } from "~/lib/fetch";
 import type { JSONValue } from "~/lib/types";
 
@@ -10,7 +10,7 @@ export const getGroup = async (groupId: string): Promise<Group> =>
 
 export const updateGroup = async (
   groupId: string,
-  data: JSONValue,
+  data: GroupInput,
 ): Promise<Group> =>
   apiFetch<Group>(`/api/group/${groupId}`, {
     method: "PATCH",

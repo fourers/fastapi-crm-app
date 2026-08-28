@@ -5,3 +5,9 @@ export interface Client {
   email: string;
   owner_id: string;
 }
+
+export interface ClientInput {
+  first_name: string;
+  last_name: string;
+  email: string;
+}

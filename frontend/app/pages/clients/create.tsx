@@ -11,11 +11,18 @@ export const CreateClient = () => {
   const { mutate, isPending } = useCreateClient();
 
   const onSubmit = (data: JSONValue) =>
-    mutate(data, {
-      onSuccess: (data) => {
-        navigate(`/clients/${data.id}`);
+    mutate(
+      {
+        first_name: data.first_name as string,
+        last_name: data.last_name as string,
+        email: data.email as string,
       },
-    });
+      {
+        onSuccess: (response) => {
+          navigate(`/clients/${response.id}`);
+        },
+      },
+    );
 
   return (
     <>

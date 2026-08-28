@@ -1,4 +1,4 @@
-import { type Client } from "~/features/clients/api/types";
+import { type Client, type ClientInput } from "~/features/clients/api/types";
 import { apiFetch } from "~/lib/fetch";
 import { type JSONValue } from "~/lib/types";
 
@@ -8,7 +8,7 @@ export const listClients = async (): Promise<Client[]> =>
 export const getClient = async (clientId: string): Promise<JSONValue> =>
   await apiFetch<JSONValue>(`/api/client/${clientId}`);
 
-export const createClient = async (data: JSONValue): Promise<JSONValue> =>
+export const createClient = async (data: ClientInput): Promise<JSONValue> =>
   await apiFetch<JSONValue>("/api/client", {
     method: "POST",
     headers: {
@@ -19,7 +19,7 @@ export const createClient = async (data: JSONValue): Promise<JSONValue> =>
 
 export const updateClient = async (
   clientId: string,
-  data: JSONValue,
+  data: ClientInput,
 ): Promise<JSONValue> =>
   apiFetch<JSONValue>(`/api/client/${clientId}`, {
     method: "PATCH",
