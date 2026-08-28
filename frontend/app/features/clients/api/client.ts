@@ -1,5 +1,5 @@
 import { type Client, type ClientInput } from "~/features/clients/api/types";
-import { apiFetch } from "~/lib/fetch";
+import { apiFetch, apiFetchNullable } from "~/lib/fetch";
 import { type JSONValue } from "~/lib/types";
 
 export const listClients = async (): Promise<Client[]> =>
@@ -27,4 +27,12 @@ export const updateClient = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+  });
+
+export const updateClientOwner = async (
+  clientId: string,
+  ownerId: string,
+): Promise<JSONValue | null> =>
+  apiFetchNullable<JSONValue>(`/api/client/${clientId}/owner/${ownerId}`, {
+    method: "PUT",
   });

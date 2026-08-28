@@ -59,6 +59,18 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
       <div className="card-body">
         <form className="container" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
+            <label htmlFor="group_name" className="form-label">
+              Group Name
+            </label>
+            <input
+              {...register("name")}
+              id="group_name"
+              className="form-control"
+              disabled={formIsLoading}
+            />
+          </div>
+
+          <div className="mb-3">
             <label htmlFor="parent_id" className="form-label">
               Parent Group
             </label>
@@ -79,17 +91,6 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
                   </option>
                 ))}
             </select>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="group_name" className="form-label">
-              Group Name
-            </label>
-            <input
-              {...register("name")}
-              id="group_name"
-              className="form-control"
-              disabled={formIsLoading}
-            />
           </div>
 
           <button

@@ -23,11 +23,15 @@ export const UpdateClient = () => {
   } = useGetClient(clientId!, validClientId);
   const { mutate, isPending: submitIsLoading } = useUpdateClient(clientId!);
 
-  const onSubmit = (data: JSONValue) =>
+  const onSubmit = (data: JSONValue, ownerChanged: boolean) =>
     mutate({
-      first_name: data.first_name as string,
-      last_name: data.last_name as string,
-      email: data.email as string,
+      data: {
+        first_name: data.first_name as string,
+        last_name: data.last_name as string,
+        email: data.email as string,
+      },
+      ownerId: data.owner_id as string,
+      ownerChanged: ownerChanged,
     });
 
   if (!validClientId) {
