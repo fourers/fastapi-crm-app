@@ -43,22 +43,7 @@ export const UpdateClientForm = ({
       },
     });
 
-  const formIsLoading =
-    clientLoading || dropdownLoading || isPending || (!!clientError && !client);
-
   const { isDirty: ownerChanged } = getFieldState("owner_id", formState);
-
-  const submitForm = (data: UpdateClientFormInput) => {
-    mutate({
-      data: {
-        first_name: data.first_name,
-        last_name: data.last_name,
-        email: data.email,
-      },
-      ownerId: data.owner_id,
-      ownerChanged: ownerChanged,
-    });
-  };
 
   useEffect(() => {
     if (!client || !dropdownFetched) {
@@ -73,10 +58,25 @@ export const UpdateClientForm = ({
     setHeaderName(formatName(client));
   }, [client, dropdownFetched, reset, setHeaderName]);
 
+  const onSubmit = (data: UpdateClientFormInput) => {
+    mutate({
+      data: {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+      },
+      ownerId: data.owner_id,
+      ownerChanged: ownerChanged,
+    });
+  };
+
+  const formIsLoading =
+    clientLoading || dropdownLoading || isPending || (!!clientError && !client);
+
   return (
     <div className="card">
       <div className="card-body">
-        <form className="container" onSubmit={handleSubmit(submitForm)}>
+        <form className="container" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
             <label htmlFor="firstName" className="form-label">
               First Name

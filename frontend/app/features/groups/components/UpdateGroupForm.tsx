@@ -2,30 +2,35 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { useUpdateGroup } from "~/features/groups/api/mutations";
-import { useListGroups } from "~/features/groups/api/queries";
-import { type Group } from "~/features/groups/api/types";
+import { useGetGroup, useListGroups } from "~/features/groups/api/queries";
 
-type GroupInputs = {
+interface UpdateGroupFormProps {
+  groupId: string;
+  setHeaderName: (headerName: string) => void;
+}
+
+type UpdateGroupInput = {
   name: string;
   parent_id: string;
 };
 
-interface GroupFormProps {
-  groupId: string;
-  group: Group | undefined;
-  isLoading: boolean;
-}
-
-export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
+export const UpdateGroupForm = ({
+  groupId,
+  setHeaderName,
+}: UpdateGroupFormProps) => {
+  const {
+    data: group,
+    isLoading: groupLoading,
+    isFetched: groupFetched,
+  } = useGetGroup(groupId, true);
   const {
     data: groups = [],
     isLoading: dropdownLoading,
     isFetched: dropdownFetched,
   } = useListGroups();
   const { mutate, isPending } = useUpdateGroup(groupId);
-
   const { register, handleSubmit, reset, getFieldState, formState } =
-    useForm<GroupInputs>({
+    useForm<UpdateGroupInput>({
       defaultValues: {
         name: "",
         parent_id: "",
@@ -39,20 +44,26 @@ export const GroupForm = ({ groupId, group, isLoading }: GroupFormProps) => {
       return;
     }
     reset({
-      ...group,
-      parent_id: group.parent_id === null ? "" : String(group.parent_id),
-    } as unknown as GroupInputs);
-  }, [group, dropdownFetched, reset]);
+      name: group.name as string,
+      parent_id: String(group.parent_id ?? ""),
+    });
+    setHeaderName(group.name || "Unknown");
+  }, [group, dropdownFetched, reset, setHeaderName]);
 
-  const onSubmit = (data: GroupInputs) => {
+  const onSubmit = (data: UpdateGroupInput) => {
     mutate({
-      group: { name: data.name as string },
-      parentId: data.parent_id ?? "",
+      group: { name: data.name },
+      parentId: data.parent_id,
       parentChanged: parentChanged,
     });
   };
 
-  const formIsLoading = isLoading || dropdownLoading || !dropdownFetched;
+  const formIsLoading =
+    groupLoading ||
+    dropdownLoading ||
+    isPending ||
+    !groupFetched ||
+    !dropdownFetched;
 
   return (
     <div className="card">

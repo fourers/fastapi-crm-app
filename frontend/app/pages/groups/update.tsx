@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { Header } from "~/components/Header";
-import { useGetGroup } from "~/features/groups/api/queries";
-import { GroupForm } from "~/features/groups/components/GroupForm";
 import { GroupUserTable } from "~/features/groups/components/GroupUserTable";
+import { UpdateGroupForm } from "~/features/groups/components/UpdateGroupForm";
 import { headerPaths } from "~/lib/breadcrumbs";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
@@ -13,8 +13,7 @@ const isPositiveInteger = (value: string | undefined): boolean => {
 
 export const UpdateGroup = () => {
   const { id } = useParams<{ id: string }>();
-  const isValid = isPositiveInteger(id);
-  const { data: group, isLoading, error } = useGetGroup(id!, isValid);
+  const [headerName, setHeaderName] = useState("");
 
   if (!isPositiveInteger(id)) {
     return <Navigate to="/groups" />;
@@ -22,15 +21,8 @@ export const UpdateGroup = () => {
 
   return (
     <>
-      <Header
-        parents={headerPaths.groups()}
-        currentPage={group?.name?.toString() ?? "Unknown"}
-      />
-      <GroupForm
-        groupId={id!}
-        group={group}
-        isLoading={isLoading || (!!error && !group)}
-      />
+      <Header parents={headerPaths.groups()} currentPage={headerName} />
+      <UpdateGroupForm groupId={id!} setHeaderName={setHeaderName} />
       <div className="mt-4">
         <p className="fs-5 fw-light">Users</p>
         <GroupUserTable groupId={id!} />
