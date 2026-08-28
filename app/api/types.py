@@ -9,5 +9,5 @@ NullableEmailString = Annotated[
 ]
 
 
-class StrictMode(BaseModel):
+class StrictModel(BaseModel):
     model_config = ConfigDict(strict=True)

@@ -5,7 +5,7 @@ from pydantic import BaseModel, StringConstraints
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.types import NullableEmailString, NullableString
+from app.api.types import NullableEmailString, NullableString, StrictModel
 from app.auth.handler import get_session
 from app.auth.session import UserSession
 from app.database.admin import get_db
@@ -31,7 +31,7 @@ def get_users(
     return db.scalars(select(User).order_by(User.id)).all()
 
 
-class UserUpdate(BaseModel):
+class UserUpdate(StrictModel):
     email: NullableEmailString = None
     first_name: NullableString = None
     last_name: NullableString = None

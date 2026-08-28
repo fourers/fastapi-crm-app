@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.types import NullableString
+from app.api.types import NullableString, StrictModel
 from app.auth.handler import get_session
 from app.auth.session import UserSession
 from app.database.admin import get_db
@@ -40,7 +40,7 @@ def get_group(
     return group
 
 
-class GroupCreate(BaseModel):
+class GroupCreate(StrictModel):
     name: NullableString = None
 
 

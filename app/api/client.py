@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.types import NullableEmailString, NullableString
+from app.api.types import NullableEmailString, NullableString, StrictModel
 from app.auth.handler import get_session
 from app.auth.session import UserSession
 from app.database.admin import get_db
@@ -45,7 +45,7 @@ def get_client(
     return client
 
 
-class ClientCreate(BaseModel):
+class ClientCreate(StrictModel):
     first_name: NullableString = None
     last_name: NullableString = None
     email: NullableEmailString = None
