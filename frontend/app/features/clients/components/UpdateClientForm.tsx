@@ -1,43 +1,63 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
+import { useUpdateClient } from "~/features/clients/api/mutations";
+import { useGetClient } from "~/features/clients/api/queries";
 import { useListUsers } from "~/features/users/api/queries";
 import { formatName } from "~/lib/formatters";
-import type { JSONValue } from "~/lib/types";
 
-interface ClientFormProps {
-  client?: JSONValue | null;
-  onSubmit: (data: JSONValue, ownerChanged: boolean) => void;
-  loadingForm?: boolean;
-  loadingSubmit: boolean;
+interface UpdateClientFormProps {
+  clientId: string;
+  setHeaderName: (headerName: string) => void;
 }
 
-export const ClientForm = ({
-  client,
-  onSubmit,
-  loadingForm = false,
-  loadingSubmit,
-}: ClientFormProps) => {
+type UpdateClientFormInput = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  owner_id: string;
+};
+
+export const UpdateClientForm = ({
+  clientId,
+  setHeaderName,
+}: UpdateClientFormProps) => {
+  const {
+    data: client,
+    isLoading: clientLoading,
+    error: clientError,
+  } = useGetClient(clientId, true);
+  const { mutate, isPending } = useUpdateClient(clientId);
   const {
     data: users,
     isLoading: dropdownLoading,
     isFetched: dropdownFetched,
   } = useListUsers();
-  const { register, handleSubmit, reset, getFieldState, formState } = useForm({
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      owner_id: "",
-    },
-  });
+  const { register, handleSubmit, reset, getFieldState, formState } =
+    useForm<UpdateClientFormInput>({
+      defaultValues: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        owner_id: "",
+      },
+    });
 
-  const formIsLoading = loadingForm || dropdownLoading;
+  const formIsLoading =
+    clientLoading || dropdownLoading || isPending || (!!clientError && !client);
 
   const { isDirty: ownerChanged } = getFieldState("owner_id", formState);
 
-  const submitForm = (data: JSONValue) => {
-    onSubmit(data, ownerChanged);
+  const submitForm = (data: UpdateClientFormInput) => {
+    mutate({
+      data: {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+      },
+      ownerId: data.owner_id,
+      ownerChanged: ownerChanged,
+    });
   };
 
   useEffect(() => {
@@ -45,10 +65,13 @@ export const ClientForm = ({
       return;
     }
     reset({
-      ...client,
+      first_name: client.first_name as string,
+      last_name: client.last_name as string,
+      email: client.email as string,
       owner_id: String(client.owner_id ?? ""),
     });
-  }, [client, dropdownFetched, reset]);
+    setHeaderName(formatName(client));
+  }, [client, dropdownFetched, reset, setHeaderName]);
 
   return (
     <div className="card">
@@ -113,7 +136,7 @@ export const ClientForm = ({
           <button
             type="submit"
             className="btn btn-primary"
-            disabled={!formState.isDirty || loadingSubmit}
+            disabled={!formState.isDirty || isPending}
           >
             Save
           </button>

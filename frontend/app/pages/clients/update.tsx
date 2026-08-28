@@ -1,12 +1,9 @@
+import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { Header } from "~/components/Header";
-import { useUpdateClient } from "~/features/clients/api/mutations";
-import { useGetClient } from "~/features/clients/api/queries";
-import { ClientForm } from "~/features/clients/components/ClientForm";
+import { UpdateClientForm } from "~/features/clients/components/UpdateClientForm";
 import { headerPaths } from "~/lib/breadcrumbs";
-import { formatName } from "~/lib/formatters";
-import { type JSONValue } from "~/lib/types";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
   const numberValue = Number(value);
@@ -16,23 +13,7 @@ const isPositiveInteger = (value: string | undefined): boolean => {
 export const UpdateClient = () => {
   const { id: clientId } = useParams<{ id: string }>();
   const validClientId = isPositiveInteger(clientId);
-  const {
-    data: client,
-    isLoading: formIsLoading,
-    error: formError,
-  } = useGetClient(clientId!, validClientId);
-  const { mutate, isPending: submitIsLoading } = useUpdateClient(clientId!);
-
-  const onSubmit = (data: JSONValue, ownerChanged: boolean) =>
-    mutate({
-      data: {
-        first_name: data.first_name as string,
-        last_name: data.last_name as string,
-        email: data.email as string,
-      },
-      ownerId: data.owner_id as string,
-      ownerChanged: ownerChanged,
-    });
+  const [headerName, setHeaderName] = useState("");
 
   if (!validClientId) {
     return <Navigate to="/clients" />;
@@ -40,16 +21,8 @@ export const UpdateClient = () => {
 
   return (
     <>
-      <Header
-        parents={headerPaths.clients()}
-        currentPage={formatName(client)}
-      />
-      <ClientForm
-        client={client}
-        onSubmit={onSubmit}
-        loadingForm={formIsLoading || (!!formError && !client)}
-        loadingSubmit={submitIsLoading}
-      />
+      <Header parents={headerPaths.clients()} currentPage={headerName} />
+      <UpdateClientForm clientId={clientId!} setHeaderName={setHeaderName} />
     </>
   );
 };
