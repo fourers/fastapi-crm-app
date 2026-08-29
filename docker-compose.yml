@@ -62,14 +62,14 @@ services:
 
   caddy:
     image: caddy:2
+    environment:
+      CADDY_TLS_CONFIG:
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile.${CADDY_PROTOCOL:-http}:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - ${CADDY_SSL_KEY_FILE:-/dev/null}:/app/certs/key.pem:ro
       - ${CADDY_SSL_CERT_FILE:-/dev/null}:/app/certs/cert.pem:ro
-      # - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      # - ./:/app:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"

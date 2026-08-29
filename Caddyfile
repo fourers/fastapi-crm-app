@@ -5,5 +5,5 @@ localhost {
 
     reverse_proxy host.docker.internal:8000
 
-    tls /app/certs/cert.pem /app/certs/key.pem
+    {$TLS_CONFIG}
 }
