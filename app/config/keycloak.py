@@ -6,7 +6,7 @@ from app.utils.vault import get_secret
 class Settings:
     @property
     def server_url(self):
-        return os.environ["KC_URL"]
+        return os.environ["KC_URL"].rstrip("/")
 
     @property
     def realm(self):
@@ -21,10 +21,6 @@ class Settings:
     def client_secret(self):
         creds = get_secret("myapp/keycloak_client")
         return creds["password"]
-
-    @property
-    def redirect_uri(self):
-        return os.environ["KC_REDIRECT_URI"]
 
     @property
     def admin_username(self):

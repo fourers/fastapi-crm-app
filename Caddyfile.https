@@ -1,0 +1,9 @@
+localhost {
+    handle_path /keycloak* {
+        reverse_proxy host.docker.internal:8080
+    }
+
+    reverse_proxy host.docker.internal:8000
+
+    tls /app/certs/cert.pem /app/certs/key.pem
+}

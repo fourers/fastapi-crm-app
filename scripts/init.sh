@@ -1,6 +1,10 @@
 #!/usr/bin/bash
 set -euo pipefail
 
+if [[ -f ".env" ]]; then
+  source .env
+fi
+
 echo "Setting up docker..."
 just stop
 just start

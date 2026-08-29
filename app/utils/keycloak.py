@@ -9,7 +9,7 @@ from keycloak import KeycloakAdmin, KeycloakOpenIDConnection
 @cache
 def _get_admin_client():
     connection = KeycloakOpenIDConnection(
-        server_url=settings.server_url,
+        server_url=f"{settings.server_url}/",
         username=settings.admin_username,
         password=settings.admin_password,
         realm_name=settings.realm,

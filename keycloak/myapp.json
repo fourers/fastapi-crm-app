@@ -16,16 +16,18 @@
       "serviceAccountsEnabled": true,
 
       "redirectUris": [
-        "http://localhost:8000/*"
+        "http://localhost:8000/*",
+        "https://localhost/*"
       ],
 
       "webOrigins": [
-        "http://localhost:8000"
+        "http://localhost:8000",
+        "https://localhost"
       ],
 
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:8000/*"
+        "post.logout.redirect.uris": "http://localhost:8000/*##https://localhost/*"
       },
 
       "protocol": "openid-connect",

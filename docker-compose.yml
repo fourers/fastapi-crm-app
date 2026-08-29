@@ -38,6 +38,9 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: ${KC_URL:-http://localhost:8080}
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
     command: ["start-dev", "--import-realm"]
     ports:
       - "8080:8080"
@@ -56,3 +59,17 @@ services:
     ports:
       - "6379:6379"
     command: redis-server --requirepass SecurePassword --appendonly yes
+
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile.${CADDY_PROTOCOL:-http}:/etc/caddy/Caddyfile:ro
+      - ${CADDY_SSL_KEY_FILE:-/dev/null}:/app/certs/key.pem:ro
+      - ${CADDY_SSL_CERT_FILE:-/dev/null}:/app/certs/cert.pem:ro
+      # - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # - ./:/app:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
