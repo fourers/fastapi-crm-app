@@ -12,11 +12,11 @@ from rich import print_json
 
 load_dotenv()
 
-TEST_ENDPOINT = "http://localhost:8000"
-KC_URL = "http://localhost:8080"
-KC_REALM = "myapp"
-KC_CLIENT_ID = "click-cli"
-KC_CLIENT_SECRET = os.environ["CLICK_CLI_SECRET"]
+TEST_ENDPOINT = os.environ["CLICK_CLI_APP_ENDPOINT"]
+KC_URL = os.environ["KC_HOSTNAME"]
+KC_REALM = os.environ["KC_REALM"]
+KC_CLIENT_ID = os.environ["CLICK_CLI_CLIENT_ID"]
+KC_CLIENT_SECRET = os.environ["CLICK_CLI_CLIENT_SECRET"]
 
 fake = Faker()
 

@@ -1,0 +1,12 @@
+set default-list := true
+
+mod playwright 'playwright'
+
+export REQUESTS_CA_BUNDLE := "/etc/ssl/certs/ca-certificates.crt"
+export SSL_CERT_FILE := "/etc/ssl/certs/ca-certificates.crt"
+
+cli *ARGS:
+    uv run cli.py {{ARGS}}
+
+init_data:
+    uv run init_data.py

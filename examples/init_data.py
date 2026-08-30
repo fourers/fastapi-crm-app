@@ -48,10 +48,13 @@ class TestClient:
 
 def get_client():
     return Client(
-        api_endpoint="http://localhost:8000",
-        oidc_config_endpoint="http://localhost:8080/realms/myapp/.well-known/openid-configuration",
-        client_id="click-cli",
-        client_secret=os.environ["CLICK_CLI_SECRET"],
+        api_endpoint=os.environ["CLICK_CLI_APP_ENDPOINT"],
+        oidc_config_endpoint=(
+            f"{os.environ['KC_HOSTNAME'].rstrip('/')}/realms/{os.environ['KC_REALM']}"
+            "/.well-known/openid-configuration"
+        ),
+        client_id=os.environ["CLICK_CLI_CLIENT_ID"],
+        client_secret=os.environ["CLICK_CLI_CLIENT_SECRET"],
         username="admin",
         password="password",
     )
