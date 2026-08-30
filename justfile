@@ -1,17 +1,13 @@
-build:
-    scripts/build.sh
+mod alembic 'scripts/alembic'
+mod backend 'scripts/backend'
+mod frontend 'scripts/frontend'
 
-build_dev:
-    scripts/build_dev.sh
+build: frontend::build
 
 cli *ARGS:
     uv run examples/cli.py {{ARGS}}
 
-dev:
-    scripts/start.sh
-
-format:
-    scripts/format.sh
+dev: backend::start
 
 init:
     scripts/init.sh
@@ -19,11 +15,9 @@ init:
 init_data:
     cd examples && uv run init_data.py
 
-install:
-    scripts/install.sh
+install: backend::install frontend::install
 
-lint:
-    scripts/lint.sh
+lint: backend::lint frontend::lint
 
 start:
     docker compose up -d --wait
@@ -34,8 +28,4 @@ stop:
 test *ARGS:
     uv run pytest {{ARGS}}
 
-update:
-    scripts/update.sh
-
-watch:
-    scripts/watch.sh
+update: backend::update frontend::update

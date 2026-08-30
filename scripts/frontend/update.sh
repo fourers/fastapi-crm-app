@@ -3,6 +3,6 @@ set -euo pipefail
 
 pushd "frontend" > /dev/null
 
-bun run build
+bun update
 
 popd > /dev/null
