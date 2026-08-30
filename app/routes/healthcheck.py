@@ -1,9 +1,11 @@
 import asyncio
-import json
 import logging
+from typing import Literal
 
 import httpx
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from sqlalchemy import text
 
 from app.config.keycloak import settings
@@ -15,9 +17,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health/live")
+class LivenessResponse(BaseModel):
+    status: Literal["alive"]
+
+
+@router.get("/health/live", response_model=LivenessResponse)
 async def liveness():
     return {"status": "alive"}
+
+
+class ReadinessResponse(BaseModel):
+    status: Literal["ready"]
+    database: Literal["healthy", "unhealthy"]
+    redis: Literal["healthy", "unhealthy"]
+    keycloak: Literal["healthy", "unhealthy"]
 
 
 async def check_database() -> bool:
@@ -51,7 +64,15 @@ async def check_keycloak() -> bool:
         return False
 
 
-@router.get("/health/ready")
+@router.get(
+    "/health/ready",
+    response_model=ReadinessResponse,
+    responses={
+        status.HTTP_503_SERVICE_UNAVAILABLE: {
+            "description": "Application is not ready",
+        },
+    },
+)
 async def readiness():
     db_healthy, redis_healthy, keycloak_healthy = await asyncio.gather(
         check_database(),
@@ -64,17 +85,12 @@ async def readiness():
         "keycloak": "healthy" if keycloak_healthy else "unhealthy",
     }
     if not db_healthy or not redis_healthy or not keycloak_healthy:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=json.dumps(
-                {
-                    "database": "healthy" if db_healthy else "unhealthy",
-                    "redis": "healthy" if redis_healthy else "unhealthy",
-                    "keycloak": "healthy" if keycloak_healthy else "unhealthy",
-                }
-            ),
+            content={
+                "database": "healthy" if db_healthy else "unhealthy",
+                "redis": "healthy" if redis_healthy else "unhealthy",
+                "keycloak": "healthy" if keycloak_healthy else "unhealthy",
+            },
         )
-    return {
-        "status": "ready",
-        "detail": details,
-    }
+    return {"status": "ready"} | details
