@@ -6,7 +6,7 @@ from app.utils.vault import get_secret
 class Settings:
     @property
     def server_url(self):
-        return os.environ["KC_URL"].rstrip("/")
+        return os.environ["KC_HOSTNAME"].rstrip("/")
 
     @property
     def realm(self):
