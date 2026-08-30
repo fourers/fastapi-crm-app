@@ -1,11 +1,14 @@
 mod alembic 'scripts/alembic'
 mod backend 'scripts/backend'
+mod docker 'scripts/docker.just'
 mod frontend 'scripts/frontend'
 mod init_commands 'scripts/init'
 
 default: install
 
 build: frontend::build
+
+build_docker: docker::build
 
 dev: backend::start
 
