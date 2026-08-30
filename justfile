@@ -3,6 +3,8 @@ mod backend 'scripts/backend'
 mod frontend 'scripts/frontend'
 mod init_commands 'scripts/init'
 
+default: install
+
 build: frontend::build
 
 dev: backend::start

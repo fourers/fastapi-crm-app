@@ -1,3 +1,5 @@
+default: install
+
 [no-cd]
 [arg('FLAG', pattern='|--dev')]
 build FLAG='':

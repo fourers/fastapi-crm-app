@@ -17,7 +17,7 @@ def lookup_creds(user: str) -> None:
         "PGPORT": creds["port"],
         "PGDATABASE": creds["database"],
         "PGUSER": creds["username"],
-        "PGPASSWORD": creds["password"]
+        "PGPASSWORD": creds["password"],
     }
     for k, v in postgres_creds.items():
         click.echo(f"export {k}={shlex.quote(v)}")
