@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 RESTRICTED_PATHS = [
     "api",
     "auth",
-    "healthcheck",
+    "health",
 ]
 
 router = APIRouter(include_in_schema=False)
