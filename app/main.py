@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.auth.access import access_log
 from app.routes.api import router as api_router
 from app.routes.auth import router as auth_router
+from app.routes.healthcheck import router as healthcheck_router
 from app.routes.index import router as index_router
 from app.utils.logging import configure_logging
 from app.utils.validation import request_validation_exception_handler
@@ -39,4 +40,5 @@ app.mount("/static", StaticFiles(directory="frontend/dist/static"))
 
 app.include_router(api_router, prefix="/api")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(healthcheck_router)
 app.include_router(index_router)

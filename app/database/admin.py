@@ -25,7 +25,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 @contextmanager
-def provide_db(db: Session | None) -> Generator[Session, None, None]:
+def provide_db(db: Session | None = None) -> Generator[Session, None, None]:
     if db is not None:
         yield db
     else:
