@@ -5,5 +5,5 @@ localhost {
 
     reverse_proxy host.docker.internal:8000
 
-    {$TLS_CONFIG}
+    {$CADDY_TLS_CONFIG}
 }
