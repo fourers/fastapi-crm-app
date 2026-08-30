@@ -20,9 +20,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-install-project --no-dev
 
 # Now copy the actual project code and install it too
-COPY app /app/app
-COPY frontend/dist /app/frontend/dist
-COPY pyproject.toml uv.lock /app
+COPY --parents app frontend/dist pyproject.toml uv.lock /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 

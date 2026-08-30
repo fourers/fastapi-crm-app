@@ -7,5 +7,5 @@ build:
 run:
     docker run --rm -it -p 8000:8000 {{ image_name }}
 
-shell_docker:
+shell:
     docker run --rm -it --entrypoint bash {{ image_name }}
