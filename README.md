@@ -6,6 +6,7 @@
 - `just`
 - `uv`
 - `bun`
+- `jq`
 
 ## Development
 

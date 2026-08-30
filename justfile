@@ -1,6 +1,7 @@
 mod alembic 'scripts/alembic'
 mod backend 'scripts/backend'
 mod frontend 'scripts/frontend'
+mod init_commands 'scripts/init'
 
 build: frontend::build
 
@@ -9,8 +10,7 @@ cli *ARGS:
 
 dev: backend::start
 
-init:
-    scripts/init.sh
+init: stop start init_commands::database init_commands::vault alembic::upgrade
 
 init_data:
     cd examples && uv run init_data.py

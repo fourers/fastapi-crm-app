@@ -1,16 +1,16 @@
-import os
-
 from app.utils.vault import get_secret
 
 
 class Settings:
     @property
     def host(self):
-        return os.environ["REDIS_HOST"]
+        creds = get_secret("myapp/redis")
+        return creds["host"]
 
     @property
     def port(self):
-        return os.environ["REDIS_PORT"]
+        creds = get_secret("myapp/redis")
+        return creds["port"]
 
     @property
     def password(self):

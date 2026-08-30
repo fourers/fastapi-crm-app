@@ -1,31 +1,23 @@
-import os
-
 from app.utils.vault import get_secret
 
 
 class Settings:
     @staticmethod
-    def generate_database_url(pguser: str, pgpassword: str):
-        pghost = os.environ["PGHOST"]
-        pgport = os.environ["PGPORT"]
-        pgdatabase = os.environ["PGDATABASE"]
-        return (
-            f"postgresql+psycopg://{pguser}:{pgpassword}@{pghost}:{pgport}/{pgdatabase}"
-        )
+    def generate_database_url(credentials: dict[str, str]):
+        host = credentials["host"]
+        port = credentials["port"]
+        database = credentials["database"]
+        username = credentials["username"]
+        password = credentials["password"]
+        return f"postgresql+psycopg://{username}:{password}@{host}:{port}/{database}"
 
     @property
     def database_url(self):
-        app_user_creds = get_secret("myapp/app_user")
-        return self.generate_database_url(
-            app_user_creds["username"], app_user_creds["password"]
-        )
+        return self.generate_database_url(get_secret("myapp/app_user"))
 
     @property
     def admin_database_url(self):
-        app_admin_creds = get_secret("myapp/app_admin")
-        return self.generate_database_url(
-            app_admin_creds["username"], app_admin_creds["password"]
-        )
+        return self.generate_database_url(get_secret("myapp/app_admin"))
 
 
 settings = Settings()

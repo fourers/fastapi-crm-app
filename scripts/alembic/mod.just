@@ -1,3 +1,5 @@
+set default-list := true
+
 export REQUESTS_CA_BUNDLE := "/etc/ssl/certs/ca-certificates.crt"
 export SSL_CERT_FILE := "/etc/ssl/certs/ca-certificates.crt"
 
@@ -7,4 +9,5 @@ generate MESSAGE:
 
 [no-cd]
 upgrade:
+    @echo "Upgrading database schema..."
     @scripts/alembic/upgrade_head.sh
