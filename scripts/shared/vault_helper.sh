@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function write_secret() {
   local -r secret_path="${1}"
   local -r payload="${2}"

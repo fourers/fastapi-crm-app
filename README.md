@@ -2,7 +2,7 @@
 
 ### Required Tools
 
-- `docker`
+- `docker compose`
 - `just`
 - `uv`
 - `bun`
@@ -41,5 +41,20 @@ just build
 To test creating a client, run the following command:
 
 ```bash
-just cli random-client
+just examples/cli random-client
+```
+
+### Setting up SSL
+
+It is assumed you have a private CA on your local machine (e.g. `mkcert`).
+
+You will need to generate your own cert files and copy them to a path inside the project directory.
+
+Once the certificates are available, add the following env variables to your `.env` file.
+
+```bash
+export KC_HOSTNAME="https://localhost/keycloak"
+export CADDY_TLS_CONFIG="tls /app/certs/cert.pem /app/certs/key.pem"
+export CADDY_SSL_KEY_FILE="./<PATH_TO_KEY_FILE>"
+export CADDY_SSL_CERT_FILE="./<PATH_TO_CERT_FILE>"
 ```

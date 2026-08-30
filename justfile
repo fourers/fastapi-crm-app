@@ -13,6 +13,9 @@ install: backend::install frontend::install
 
 lint: backend::lint frontend::lint
 
+shellcheck:
+    @docker run --rm -v ".:/mnt" koalaman/shellcheck:stable $(find scripts -type f -name '*.sh' -printf '/mnt/%p\n')
+
 start:
     docker compose up -d --wait
 
