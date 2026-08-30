@@ -27,6 +27,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # ---- Runtime stage ----
 FROM python:3.14-slim AS runtime
 
+# Install tools
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user
 RUN groupadd -r app && useradd -r -g app app
 
@@ -42,5 +48,8 @@ COPY --from=builder --chown=app:app /app /app
 ENV PATH="/app/.venv/bin:$PATH"
 
 USER app
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health/live || exit 1
 
 ENTRYPOINT ["python", "-m", "fastapi", "run"]
