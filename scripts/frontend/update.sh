@@ -3,6 +3,6 @@ set -euo pipefail
 
 pushd "frontend" > /dev/null
 
-bun update
+bun update --lockfile-only
 
 popd > /dev/null
