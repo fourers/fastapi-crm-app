@@ -10,4 +10,8 @@ export const groupKeys = {
   users: () => [...groupKeys.all, "user"] as const,
 
   user: (id: string) => [...groupKeys.users(), id] as const,
+
+  subgroups: () => [...groupKeys.all, "subgroup"] as const,
+
+  subgroup: (id: string) => [...groupKeys.subgroups(), id] as const,
 };

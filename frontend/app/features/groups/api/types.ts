@@ -8,6 +8,11 @@ export interface GroupInput {
   name: string;
 }
 
+export interface GroupSummary {
+  id: number;
+  name: string;
+}
+
 export interface UserSummary {
   id: number;
   first_name: string;

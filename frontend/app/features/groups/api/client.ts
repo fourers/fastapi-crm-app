@@ -1,4 +1,9 @@
-import { type Group, type GroupInput } from "~/features/groups/api/types";
+import {
+  type Group,
+  type GroupInput,
+  type GroupSummary,
+  type UserSummary,
+} from "~/features/groups/api/types";
 import { apiFetch, apiFetchNullable } from "~/lib/fetch";
 import type { JSONValue } from "~/lib/types";
 
@@ -35,5 +40,8 @@ export const removeGroupParent = async (
     method: "DELETE",
   });
 
-export const listGroupUsers = async (groupId: string): Promise<Group> =>
-  await apiFetch<Group>(`/api/group/${groupId}/user`);
+export const listGroupUsers = async (groupId: string): Promise<UserSummary[]> =>
+  await apiFetch<UserSummary[]>(`/api/group/${groupId}/user`);
+
+export const listSubgroups = async (groupId: string): Promise<GroupSummary[]> =>
+  await apiFetch<GroupSummary[]>(`/api/group/${groupId}/subgroup`);

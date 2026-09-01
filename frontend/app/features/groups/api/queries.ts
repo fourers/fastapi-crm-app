@@ -4,6 +4,7 @@ import {
   getGroup,
   listGroups,
   listGroupUsers,
+  listSubgroups,
 } from "~/features/groups/api/client";
 import { groupKeys } from "~/features/groups/api/keys";
 
@@ -24,4 +25,10 @@ export const useListGroupUsers = (groupId: string) =>
   useQuery({
     queryKey: groupKeys.user(groupId),
     queryFn: () => listGroupUsers(groupId),
+  });
+
+export const useListSubgroups = (groupId: string) =>
+  useQuery({
+    queryKey: groupKeys.subgroup(groupId),
+    queryFn: () => listSubgroups(groupId),
   });
