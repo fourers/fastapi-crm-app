@@ -10,7 +10,7 @@ interface SearchModalProps {
   searchFunc: (q: string) => Promise<SearchResult[]>;
 }
 
-function useDebounce<T>(value: T, delay: number) {
+const useDebounce = <T,>(value: T, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function useDebounce<T>(value: T, delay: number) {
   }, [value, delay]);
 
   return debouncedValue;
-}
+};
 
 export const SearchModal = ({ show, onHide, searchFunc }: SearchModalProps) => {
   const { control, register } = useForm({
@@ -77,8 +77,11 @@ export const SearchModal = ({ show, onHide, searchFunc }: SearchModalProps) => {
             </div>
 
             <div className="border-top">
-              {hasQuery && isFetching && <div className="p-3 text-muted">Searching...</div>}
-              {hasQuery && !isFetching &&
+              {hasQuery && isFetching && (
+                <div className="p-3 text-muted">Searching...</div>
+              )}
+              {hasQuery &&
+                !isFetching &&
                 (data ?? []).map((result) => (
                   <a
                     key={result.id}
