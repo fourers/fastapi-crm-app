@@ -11,7 +11,7 @@ import { ApiError, AuthError } from "~/lib/types";
 
 export const loginLoader = async (): Promise<Response | undefined> => {
   try {
-    await queryClient.ensureQueryData(getSessionAlwaysQuery());
+    await queryClient.query(getSessionAlwaysQuery());
     return redirect("/");
   } catch {
     // Do nothing
@@ -22,7 +22,7 @@ export const authLoader = async ({
   url,
 }: LoaderFunctionArgs): Promise<UserSession | Response> => {
   try {
-    return await queryClient.ensureQueryData(getSessionQuery());
+    return await queryClient.query(getSessionQuery());
   } catch (error) {
     if (error instanceof ApiError && error.status === 401) {
       if (url.pathname === "/") {

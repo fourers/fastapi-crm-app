@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, StringConstraints
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.types import NullableEmailString, NullableString, StrictModel
@@ -29,6 +29,21 @@ def get_users(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     return db.scalars(select(User).order_by(User.id)).all()
+
+
+@router.get("/user/search", response_model=list[UserResponse])
+def search_users(
+    q: Annotated[str, Query(min_length=1, max_length=100)],
+    db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
+):
+    return db.scalars(
+        select(User).where(
+            func.to_tsvector("simple", User.search_name).op("@@")(
+                func.plainto_tsquery("simple", q)
+            )
+        )
+    ).all()
 
 
 class UserUpdate(StrictModel):

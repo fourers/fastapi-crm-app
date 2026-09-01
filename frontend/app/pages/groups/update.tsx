@@ -5,6 +5,7 @@ import { Header } from "~/components/Header";
 import { GroupSubGroupTable } from "~/features/groups/components/GroupSubgroupTable";
 import { GroupUserTable } from "~/features/groups/components/GroupUserTable";
 import { UpdateGroupForm } from "~/features/groups/components/UpdateGroupForm";
+import { SearchUsersModal } from "~/features/users/components/SearchUsersModal";
 import { headerPaths } from "~/lib/breadcrumbs";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
@@ -32,6 +33,7 @@ export const UpdateGroup = () => {
         <p className="fs-5 fw-light">Users</p>
         <GroupUserTable groupId={id!} />
       </div>
+      <SearchUsersModal />
     </>
   );
 };

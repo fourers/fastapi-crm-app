@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import Computed, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -26,4 +26,14 @@ class User(Base):
     groups: Mapped[list["Group"]] = relationship(
         secondary=group_users,
         back_populates="users",
+    )
+
+    search_name: Mapped[str] = mapped_column(
+        String(255),
+        Computed(
+            "lower(trim(coalesce(trim(first_name), '') || ' ' || coalesce(trim(last_name), '')))",
+            persisted=True,
+        ),
+        nullable=True,
+        index=True,
     )
