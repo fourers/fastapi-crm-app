@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Computed, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -23,3 +23,13 @@ class Client(Base):
     )
 
     owner: Mapped["User | None"] = relationship(back_populates="clients")
+
+    search_name: Mapped[str] = mapped_column(
+        String(255),
+        Computed(
+            "lower(trim(coalesce(trim(first_name), '') || ' ' || coalesce(trim(last_name), '')))",
+            persisted=True,
+        ),
+        nullable=True,
+        index=True,
+    )

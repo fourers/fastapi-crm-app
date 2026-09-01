@@ -5,7 +5,7 @@ export SSL_CERT_FILE := "/etc/ssl/certs/ca-certificates.crt"
 
 [no-cd]
 generate MESSAGE:
-    @scripts/alembic/generate_revision.sh {{MESSAGE}}
+    @scripts/alembic/generate_revision.sh "{{MESSAGE}}"
 
 [no-cd]
 upgrade:

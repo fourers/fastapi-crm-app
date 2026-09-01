@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.types import NullableEmailString, NullableString, StrictModel
@@ -30,6 +30,22 @@ def get_clients(
 ):
     apply_rls(db, session)
     return db.scalars(select(Client).order_by(Client.id)).all()
+
+
+@router.get("/client/search", response_model=list[ClientResponse])
+def search_clients(
+    q: Annotated[str, Query(min_length=1, max_length=100)],
+    db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
+):
+    apply_rls(db, session)
+    return db.scalars(
+        select(Client).where(
+            func.to_tsvector("simple", Client.search_name).op("@@")(
+                func.plainto_tsquery("simple", q)
+            )
+        )
+    ).all()
 
 
 @router.get("/client/{client_id}", response_model=ClientResponse)
