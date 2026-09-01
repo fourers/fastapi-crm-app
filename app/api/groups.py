@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.types import NullableString, StrictModel
@@ -26,6 +26,21 @@ def get_groups(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     return db.scalars(select(Group).order_by(Group.id)).all()
+
+
+@router.get("/group/search", response_model=list[GroupResponse])
+def search_groups(
+    q: Annotated[str, Query(min_length=1, max_length=100)],
+    db: Annotated[Session, Depends(get_db)],
+    session: Annotated[UserSession, Depends(get_session)],
+):
+    return db.scalars(
+        select(Group).where(
+            func.to_tsvector("simple", Group.name).op("@@")(
+                func.plainto_tsquery("simple", q)
+            )
+        )
+    ).all()
 
 
 @router.get("/group/{group_id}", response_model=GroupResponse)
