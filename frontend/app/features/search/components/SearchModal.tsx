@@ -3,6 +3,7 @@ import { type ReactNode, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import type { SearchResult } from "~/features/search/api/types";
+import { queryClient } from "~/lib/queryClient";
 
 interface SearchModalProps {
   show: boolean;
@@ -54,10 +55,8 @@ export const SearchModal = ({
   searchFunc,
   appendComponent,
 }: SearchModalProps) => {
-  const { control, register } = useForm({
-    defaultValues: {
-      query: "",
-    },
+  const { control, register, reset } = useForm({
+    defaultValues: { query: "" },
   });
   const query = useWatch({
     control,
@@ -71,8 +70,13 @@ export const SearchModal = ({
     queryFn: () => searchFunc(trimmedQuery),
     enabled: hasQuery,
     placeholderData: keepPreviousData,
-    staleTime: 30_000,
   });
+
+  const onClose = () => {
+    reset({ query: "" });
+    queryClient.removeQueries({ queryKey: ["search"] });
+    onHide();
+  };
 
   return (
     <>
@@ -82,7 +86,7 @@ export const SearchModal = ({
         tabIndex={-1}
         role="dialog"
       >
-        <div className="modal-dialog modal-lg">
+        <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-body p-0">
               <div className="input-group input-group-lg">
@@ -93,6 +97,7 @@ export const SearchModal = ({
                 <input
                   {...register("query")}
                   type="search"
+                  autoComplete="off"
                   className="form-control border-0 shadow-none"
                   placeholder="Search..."
                   autoFocus
@@ -101,7 +106,7 @@ export const SearchModal = ({
                 <button
                   type="button"
                   className="btn btn-link text-secondary"
-                  onClick={onHide}
+                  onClick={onClose}
                 >
                   <kbd>Esc</kbd>
                 </button>

@@ -8,8 +8,8 @@ export const SearchUsersModal = () => {
 
   return (
     <>
-      <div className="btn" onClick={() => setShow(true)}>
-        Show Search
+      <div className="btn btn-link" onClick={() => setShow(true)}>
+        Add User
       </div>
       <SearchModal
         show={show}

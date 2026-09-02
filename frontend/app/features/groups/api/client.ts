@@ -45,3 +45,11 @@ export const listGroupUsers = async (groupId: string): Promise<UserSummary[]> =>
 
 export const listSubgroups = async (groupId: string): Promise<GroupSummary[]> =>
   await apiFetch<GroupSummary[]>(`/api/group/${groupId}/subgroup`);
+
+export const addGroupUser = async (
+  groupId: string,
+  userId: string,
+): Promise<JSONValue | null> =>
+  apiFetchNullable<JSONValue>(`/api/group/${groupId}/user/${userId}`, {
+    method: "PUT",
+  });

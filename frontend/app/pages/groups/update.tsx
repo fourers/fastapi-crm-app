@@ -30,10 +30,16 @@ export const UpdateGroup = () => {
         <GroupSubGroupTable groupId={id!} />
       </div>
       <div className="mt-4">
-        <p className="fs-5 fw-light">Users</p>
+        <div className="row">
+          <div className="col">
+            <p className="fs-5 fw-light">Users</p>
+          </div>
+          <div className="col-md-auto">
+            <SearchUsersModal />
+          </div>
+        </div>
         <GroupUserTable groupId={id!} />
       </div>
-      <SearchUsersModal />
     </>
   );
 };
