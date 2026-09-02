@@ -16,6 +16,6 @@
   flex: 0 0 auto;
 }
 
-.table {
+.table:not(.table-borderless) {
   border-top: var(--bs-border-width) solid var(--bs-table-border-color);
 }

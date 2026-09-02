@@ -1,6 +1,7 @@
 mod alembic 'scripts/alembic'
 mod backend 'scripts/backend'
 mod docker 'scripts/docker.just'
+mod examples 'examples'
 mod frontend 'scripts/frontend'
 mod init_commands 'scripts/init'
 
