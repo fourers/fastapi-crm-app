@@ -14,7 +14,7 @@ class Group(Base):
     __tablename__ = "groups"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100), nullable=True, index=True)
+    name: Mapped[str] = mapped_column(String(100), nullable=True, index=False)
     parent_id: Mapped[int | None] = mapped_column(
         ForeignKey("groups.id"),
         nullable=True,

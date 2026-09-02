@@ -40,11 +40,9 @@ def search_clients(
 ):
     apply_rls(db, session)
     return db.scalars(
-        select(Client).where(
-            func.to_tsvector("simple", Client.search_name).op("@@")(
-                func.plainto_tsquery("simple", q)
-            )
-        )
+        select(Client)
+        .where(Client.search_name.op("%")(q))
+        .order_by(func.similarity(Client.search_name, q).desc())
     ).all()
 
 

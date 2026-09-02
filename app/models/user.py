@@ -35,5 +35,5 @@ class User(Base):
             persisted=True,
         ),
         nullable=True,
-        index=True,
+        index=False,
     )

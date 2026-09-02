@@ -38,11 +38,9 @@ def search_users(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     return db.scalars(
-        select(User).where(
-            func.to_tsvector("simple", User.search_name).op("@@")(
-                func.plainto_tsquery("simple", q)
-            )
-        )
+        select(User)
+        .where(User.search_name.op("%")(q))
+        .order_by(func.similarity(User.search_name, q).desc())
     ).all()
 
 

@@ -4,6 +4,8 @@ GRANT CONNECT ON DATABASE myapp TO app_user;
 
 \c myapp
 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 GRANT USAGE ON SCHEMA public TO app_user;
 
 ALTER DEFAULT PRIVILEGES FOR ROLE app_admin IN SCHEMA public

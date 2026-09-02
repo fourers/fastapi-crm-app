@@ -35,11 +35,9 @@ def search_groups(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     return db.scalars(
-        select(Group).where(
-            func.to_tsvector("simple", Group.name).op("@@")(
-                func.plainto_tsquery("simple", q)
-            )
-        )
+        select(Group)
+        .where(Group.name.op("%")(q))
+        .order_by(func.similarity(Group.name, q).desc())
     ).all()
 
 
