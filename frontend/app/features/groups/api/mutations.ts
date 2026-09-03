@@ -57,11 +57,16 @@ export const useAddGroupUser = (groupId: string) => {
           groupKeys.user(groupId),
           (prev: UserSummary[]) => [...prev, data.user],
         );
+        useAppStore.getState().addMessage({
+          message: "User was added to group",
+          status: Status.success,
+        });
+      } else {
+        useAppStore.getState().addMessage({
+          message: "User already added to group",
+          status: Status.success,
+        });
       }
-      useAppStore.getState().addMessage({
-        message: "User was added to group",
-        status: Status.success,
-      });
     },
   });
 };
