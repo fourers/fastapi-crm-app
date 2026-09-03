@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.api.types import NullableString, StrictModel
@@ -34,6 +34,7 @@ def search_groups(
     db: Annotated[Session, Depends(get_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
+    db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.2"))
     return db.scalars(
         select(Group)
         .where(Group.name.op("%")(q))
