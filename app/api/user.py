@@ -37,7 +37,7 @@ def search_users(
     db: Annotated[Session, Depends(get_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.2"))
+    db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.1"))
     return db.scalars(
         select(User)
         .where(User.search_name.op("%")(q))

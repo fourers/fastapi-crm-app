@@ -39,7 +39,7 @@ def search_clients(
     session: Annotated[UserSession, Depends(get_session)],
 ):
     apply_rls(db, session)
-    db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.2"))
+    db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.1"))
     return db.scalars(
         select(Client)
         .where(Client.search_name.op("%")(q))
