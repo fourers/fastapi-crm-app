@@ -17,10 +17,10 @@ router = APIRouter()
 
 class UserResponse(BaseModel):
     id: int
-    email: str | None
-    username: str
     first_name: str | None
     last_name: str | None
+    username: str
+    email: str | None
 
 
 @router.get("/user", response_model=list[UserResponse])
