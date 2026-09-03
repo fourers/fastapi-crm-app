@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import type { SearchResult } from "~/features/search/api/types";
@@ -12,6 +12,7 @@ interface SearchModalProps {
   onHide: () => void;
   searchFunc: (q: string) => Promise<SearchResult[]>;
   appendComponent?: (data: SearchResult) => ReactNode;
+  resetKey?: number;
 }
 
 const useDebounce = <T,>(value: T, delay: number) => {
@@ -34,6 +35,7 @@ export const SearchModal = ({
   onHide,
   searchFunc,
   appendComponent,
+  resetKey,
 }: SearchModalProps) => {
   const { control, register, reset } = useForm({
     defaultValues: { query: "" },
@@ -52,11 +54,19 @@ export const SearchModal = ({
     placeholderData: keepPreviousData,
   });
 
-  const onClose = () => {
+  const resetSearch = useCallback(() => {
     reset({ query: "" });
     queryClient.removeQueries({ queryKey: ["search"] });
+  }, [reset]);
+
+  const onClose = () => {
+    resetSearch();
     onHide();
   };
+
+  useEffect(() => {
+    resetSearch();
+  }, [resetKey, resetSearch]);
 
   return (
     <>

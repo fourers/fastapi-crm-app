@@ -13,6 +13,7 @@ interface AddUserToGroupModalProps {
 export const AddUserToGroupModal = ({ groupId }: AddUserToGroupModalProps) => {
   const [show, setShow] = useState(false);
   const { mutate, isPending } = useAddGroupUser(groupId);
+  const [resetKey, setResetKey] = useState(0);
 
   const addButton = (data: SearchResult) => (
     <div
@@ -23,6 +24,7 @@ export const AddUserToGroupModal = ({ groupId }: AddUserToGroupModalProps) => {
           {
             onSuccess: () => {
               setShow(false);
+              setResetKey((key) => key + 1);
             },
           },
         );
@@ -43,6 +45,7 @@ export const AddUserToGroupModal = ({ groupId }: AddUserToGroupModalProps) => {
         onHide={() => setShow(false)}
         searchFunc={searchUsers}
         appendComponent={addButton}
+        resetKey={resetKey}
       />
     </>
   );
