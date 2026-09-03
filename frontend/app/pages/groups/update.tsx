@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { Header } from "~/components/Header";
+import { AddUserToGroupModal } from "~/features/groups/components/AddUserToGroupModal";
 import { GroupSubGroupTable } from "~/features/groups/components/GroupSubgroupTable";
 import { GroupUserTable } from "~/features/groups/components/GroupUserTable";
 import { UpdateGroupForm } from "~/features/groups/components/UpdateGroupForm";
-import { SearchUsersModal } from "~/features/users/components/SearchUsersModal";
 import { headerPaths } from "~/lib/breadcrumbs";
 
 const isPositiveInteger = (value: string | undefined): boolean => {
@@ -35,7 +35,7 @@ export const UpdateGroup = () => {
             <p className="fs-5 fw-light">Users</p>
           </div>
           <div className="col-md-auto">
-            <SearchUsersModal />
+            <AddUserToGroupModal groupId={id!} />
           </div>
         </div>
         <GroupUserTable groupId={id!} />

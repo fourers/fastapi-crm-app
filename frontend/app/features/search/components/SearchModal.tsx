@@ -3,10 +3,12 @@ import { type ReactNode, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import type { SearchResult } from "~/features/search/api/types";
+import { ModalResults } from "~/features/search/components/ModalResults";
 import { queryClient } from "~/lib/queryClient";
 
 interface SearchModalProps {
   show: boolean;
+  disabled: boolean;
   onHide: () => void;
   searchFunc: (q: string) => Promise<SearchResult[]>;
   appendComponent?: (data: SearchResult) => ReactNode;
@@ -26,31 +28,9 @@ const useDebounce = <T,>(value: T, delay: number) => {
   return debouncedValue;
 };
 
-const ModalResults = ({
-  data,
-  appendComponent,
-}: {
-  data: SearchResult[];
-  appendComponent?: (data: SearchResult) => ReactNode;
-}) => (
-  <div className="p-3 table-responsive">
-    <table className="table table-hover table-borderless align-middle mb-0">
-      <tbody>
-        {data.map((result) => (
-          <tr key={result.id}>
-            <td>
-              <div className="d-block text-decoration-none">{result.name}</div>
-            </td>
-            {appendComponent && <td>{appendComponent(result)}</td>}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
 export const SearchModal = ({
   show,
+  disabled,
   onHide,
   searchFunc,
   appendComponent,
@@ -101,12 +81,14 @@ export const SearchModal = ({
                   className="form-control border-0 shadow-none"
                   placeholder="Search..."
                   autoFocus
+                  disabled={disabled}
                 />
 
                 <button
                   type="button"
                   className="btn btn-link text-secondary"
                   onClick={onClose}
+                  disabled={disabled}
                 >
                   <kbd>Esc</kbd>
                 </button>

@@ -36,8 +36,8 @@ def get_group_users(
 
 
 class AssociationSummary(BaseModel):
-    group_id: int
-    user_id: int
+    id: int
+    user: UserSummary
 
 
 @router.put(
@@ -62,8 +62,8 @@ def add_user_to_group(
         group.users.append(user)
         db.commit()
         return {
-            "group_id": group_id,
-            "user_id": user_id,
+            "id": group_id,
+            "user": user,
         }
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
