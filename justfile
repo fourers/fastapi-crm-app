@@ -19,6 +19,9 @@ install: backend::install frontend::install
 
 lint: backend::lint frontend::lint
 
+pgshell USER='admin':
+    @docker compose exec postgres psql -d myapp -U "{{ USER }}"
+
 shellcheck:
     @docker run --rm -v ".:/mnt" koalaman/shellcheck:stable $(find scripts -type f -name '*.sh' -printf '/mnt/%p\n')
 
