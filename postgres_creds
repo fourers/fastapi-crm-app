@@ -1,3 +1,0 @@
-#!/usr/bin/bash
-
-source <(uv run scripts/_print_pg_credentials.py "${@}")
