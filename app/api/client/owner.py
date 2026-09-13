@@ -6,8 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.handler import get_session
 from app.auth.session import UserSession
-from app.database.admin import get_db
-from app.database.rls import apply_rls
+from app.database.rls import get_rls_db
 from app.models.client import Client
 from app.models.user import User
 
@@ -23,10 +22,9 @@ class OwnerSummary(BaseModel):
 def update_owner_of_client(
     client_id: int,
     owner_id: int,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     client = db.get(Client, client_id)
     if not client:
         raise HTTPException(status.HTTP_404_NOT_FOUND)

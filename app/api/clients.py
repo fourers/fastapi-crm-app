@@ -8,8 +8,7 @@ from sqlalchemy.orm import Session
 from app.api.types import NullableEmailString, NullableString, StrictModel
 from app.auth.handler import get_session
 from app.auth.session import UserSession
-from app.database.admin import get_db
-from app.database.rls import apply_rls
+from app.database.rls import get_rls_db
 from app.models.client import Client
 
 router = APIRouter()
@@ -25,20 +24,18 @@ class ClientResponse(BaseModel):
 
 @router.get("/client", response_model=list[ClientResponse])
 def get_clients(
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     return db.scalars(select(Client).order_by(Client.id)).all()
 
 
 @router.get("/client/search", response_model=list[ClientResponse])
 def search_clients(
     q: Annotated[str, Query(min_length=1, max_length=100)],
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     db.execute(text("SET LOCAL pg_trgm.similarity_threshold = 0.1"))
     return db.scalars(
         select(Client)
@@ -50,10 +47,9 @@ def search_clients(
 @router.get("/client/{client_id}", response_model=ClientResponse)
 def get_client(
     client_id: int,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     client = db.scalars(select(Client).where(Client.id == client_id)).first()
     if not client:
         raise HTTPException(404)
@@ -69,17 +65,15 @@ class ClientCreate(StrictModel):
 @router.post("/client", response_model=ClientResponse)
 def create_client(
     payload: ClientCreate,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     client_dict = payload.model_dump(exclude_unset=True)
     client_dict["owner_id"] = session.id
 
     client = Client(**client_dict)
     db.add(client)
     db.commit()
-    apply_rls(db, session)
     db.refresh(client)
     return client
 
@@ -88,10 +82,9 @@ def create_client(
 def update_client(
     client_id: Annotated[int, Path()],
     payload: ClientCreate,
-    db: Annotated[Session, Depends(get_db)],
+    db: Annotated[Session, Depends(get_rls_db)],
     session: Annotated[UserSession, Depends(get_session)],
 ):
-    apply_rls(db, session)
     client_dict = payload.model_dump(exclude_unset=True)
     client = db.scalars(select(Client).filter_by(id=client_id)).first()
     if not client:
@@ -101,6 +94,5 @@ def update_client(
         setattr(client, key, value)
 
     db.commit()
-    apply_rls(db, session)
     db.refresh(client)
     return client
