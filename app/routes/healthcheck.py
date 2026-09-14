@@ -87,10 +87,6 @@ async def readiness():
     if not db_healthy or not redis_healthy or not keycloak_healthy:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={
-                "database": "healthy" if db_healthy else "unhealthy",
-                "redis": "healthy" if redis_healthy else "unhealthy",
-                "keycloak": "healthy" if keycloak_healthy else "unhealthy",
-            },
+            content=details,
         )
     return {"status": "ready"} | details
