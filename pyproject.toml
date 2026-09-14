@@ -9,7 +9,7 @@ dependencies = [
   "async-lru",
   "authlib",
   "fastapi[standard]",
-  "httpx",
+  "httpx2",
   "hvac",
   "itsdangerous",
   "psycopg",

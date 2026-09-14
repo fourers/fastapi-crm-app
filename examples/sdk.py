@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from functools import cached_property
 
-import httpx
+import httpx2
 
 
 @dataclass
@@ -12,12 +12,12 @@ class Client:
     client_secret: str
     username: str
     password: str
-    client: httpx.Client = field(init=False)
+    client: httpx2.Client = field(init=False)
     access_token: str | None = field(init=False)
 
     def __post_init__(self):
         self.api_endpoint = self.api_endpoint.rstrip("/")
-        self.client = httpx.Client()
+        self.client = httpx2.Client()
 
     def __enter__(self):
         self.login()

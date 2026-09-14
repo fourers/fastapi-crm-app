@@ -12,6 +12,7 @@ def configure_logging() -> None:
     root.setLevel(logging.INFO)
 
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpx2").setLevel(logging.WARNING)
 
     # avoid duplicate handlers if configure_logging() is called more than once
     for handler in list(root.handlers):

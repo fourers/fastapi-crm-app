@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import Literal
 
-import httpx
+import httpx2
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -54,7 +54,7 @@ async def check_redis() -> bool:
 
 async def check_keycloak() -> bool:
     try:
-        response = httpx.get(
+        response = httpx2.get(
             f"{settings.server_url}/realms/{settings.realm}/.well-known/openid-configuration"
         )
         response.raise_for_status()

@@ -2,7 +2,7 @@ import os
 import time
 
 import click
-import httpx
+import httpx2
 import jwt
 from dotenv import load_dotenv
 from faker import Faker
@@ -22,7 +22,7 @@ fake = Faker()
 
 class TestSession:
     def __init__(self, username: str, password: str):
-        self.client = httpx.Client()
+        self.client = httpx2.Client()
         self.username = username
         self.password = password
         self.access_token = "xxx"
