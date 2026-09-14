@@ -1,6 +1,5 @@
 import os
 import time
-from functools import wraps
 
 import click
 import httpx
@@ -64,167 +63,142 @@ class TestSession:
         response.raise_for_status()
 
 
-def user_password_options(func):
-    func = click.option("--user", default="admin", type=click.STRING)(func)
-    return click.option("--password", default="password", type=click.STRING)(func)
-
-
-def with_test_session(func):
-    @user_password_options
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        with TestSession(kwargs.pop("user"), kwargs.pop("password")) as session:
-            return func(*args, session=session, **kwargs)
-
-    return wrapper
-
-
 @click.group()
-def cli():
-    pass
+@click.option("--user", default="admin", type=click.STRING)
+@click.option("--password", default="password", type=click.STRING)
+@click.pass_context
+def cli(ctx: click.Context, user: str, password: str):
+    ctx.obj = ctx.with_resource(TestSession(user, password))
 
 
 @cli.command()
-@user_password_options
-def random_client(user: str, password: str):
-    with TestSession(user, password) as session:
-        first_name = fake.first_name()
-        last_name = fake.last_name()
-        response = session.client.post(
-            f"{TEST_ENDPOINT}/api/client",
-            json={
-                "first_name": first_name,
-                "last_name": last_name,
-                "email": f"{first_name}.{last_name}@example.com".lower(),
-            },
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def random_client(session: TestSession):
+    first_name = fake.first_name()
+    last_name = fake.last_name()
+    response = session.client.post(
+        f"{TEST_ENDPOINT}/api/client",
+        json={
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": f"{first_name}.{last_name}@example.com".lower(),
+        },
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def random_user(user: str, password: str):
-    with TestSession(user, password) as session:
-        first_name = fake.first_name()
-        last_name = fake.last_name()
-        response = session.client.post(
-            f"{TEST_ENDPOINT}/api/user",
-            json={
-                "username": f"{first_name[0]}{last_name}".lower(),
-                "email": f"{first_name}.{last_name}@example.com".lower(),
-                "first_name": first_name,
-                "last_name": last_name,
-            },
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def random_user(session: TestSession):
+    first_name = fake.first_name()
+    last_name = fake.last_name()
+    response = session.client.post(
+        f"{TEST_ENDPOINT}/api/user",
+        json={
+            "username": f"{first_name[0]}{last_name}".lower(),
+            "email": f"{first_name}.{last_name}@example.com".lower(),
+            "first_name": first_name,
+            "last_name": last_name,
+        },
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def list_clients(user: str, password: str):
-    with TestSession(user, password) as session:
-        response = session.client.get(
-            f"{TEST_ENDPOINT}/api/client",
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def list_clients(session: TestSession):
+    response = session.client.get(
+        f"{TEST_ENDPOINT}/api/client",
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def list_users(user: str, password: str):
-    with TestSession(user, password) as session:
-        response = session.client.get(
-            f"{TEST_ENDPOINT}/api/user",
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def list_users(session: TestSession):
+    response = session.client.get(
+        f"{TEST_ENDPOINT}/api/user",
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def me(user: str, password: str):
-    with TestSession(user, password) as session:
-        response = session.client.get(
-            f"{TEST_ENDPOINT}/auth/me", headers=session.headers
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def me(session: TestSession):
+    response = session.client.get(f"{TEST_ENDPOINT}/auth/me", headers=session.headers)
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def introspect(user: str, password: str):
-    with TestSession(user, password) as session:
-        response = session.client.post(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token/introspect",
-            data={
-                "client_id": KC_CLIENT_ID,
-                "client_secret": KC_CLIENT_SECRET,
-                "token": session.access_token,
-                "token_type_hint": "access_token",
-            },
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def introspect(session: TestSession):
+    response = session.client.post(
+        f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/token/introspect",
+        data={
+            "client_id": KC_CLIENT_ID,
+            "client_secret": KC_CLIENT_SECRET,
+            "token": session.access_token,
+            "token_type_hint": "access_token",
+        },
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command()
-@user_password_options
-def decode(user: str, password: str):
-    with TestSession(user, password) as session:
-        jwk_keys = PyJWKClient(
-            f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/certs"
-        )
-        data = {
-            "header": jwt.get_unverified_header(session.access_token),
-            "payload": jwt.decode(
-                session.access_token,
-                key=jwk_keys.get_signing_key_from_jwt(session.access_token),
-                algorithms=["RS256"],
-                options={"verify_signature": False},
-            ),
-        }
-        print_json(data=data)
+@click.pass_obj
+def decode(session: TestSession):
+    jwk_keys = PyJWKClient(f"{KC_URL}/realms/{KC_REALM}/protocol/openid-connect/certs")
+    data = {
+        "header": jwt.get_unverified_header(session.access_token),
+        "payload": jwt.decode(
+            session.access_token,
+            key=jwk_keys.get_signing_key_from_jwt(session.access_token),
+            algorithms=["RS256"],
+            options={"verify_signature": False},
+        ),
+    }
+    print_json(data=data)
 
 
 @cli.command
-@user_password_options
-def token(user: str, password: str):
-    with TestSession(user, password) as session:
-        click.secho("Access token:", fg="cyan")
-        click.echo(session.access_token)
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            click.secho("\nEnding session...", fg="yellow")
+@click.pass_obj
+def token(session: TestSession):
+    click.secho("Access token:", fg="cyan")
+    click.echo(session.access_token)
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        click.secho("\nEnding session...", fg="yellow")
 
 
 @cli.command("random-group")
-@user_password_options
-def random_group(user: str, password: str):
-    with TestSession(user, password) as session:
-        name = fake.company()
-        response = session.client.post(
-            f"{TEST_ENDPOINT}/api/group",
-            json={
-                "name": name,
-            },
-            headers=session.headers,
-        )
-        response.raise_for_status()
-        print_json(data=response.json())
+@click.pass_obj
+def random_group(session: TestSession):
+    name = fake.company()
+    response = session.client.post(
+        f"{TEST_ENDPOINT}/api/group",
+        json={
+            "name": name,
+        },
+        headers=session.headers,
+    )
+    response.raise_for_status()
+    print_json(data=response.json())
 
 
 @cli.command
-@with_test_session
+@click.pass_obj
 @click.option("--group-id", "-g", "group_id", required=True, type=int)
 @click.option("--user-id", "-u", "user_id", required=True, type=int)
 def group_relationship(session: TestSession, group_id: int, user_id: int):
@@ -240,7 +214,7 @@ def group_relationship(session: TestSession, group_id: int, user_id: int):
 
 
 @cli.command
-@with_test_session
+@click.pass_obj
 @click.option("--group-id", "-g", "group_id", required=True, type=int)
 @click.option("--parent-id", "-p", "parent_id", required=True, type=int)
 def group_parent(session: TestSession, group_id: int, parent_id: int):
@@ -256,7 +230,7 @@ def group_parent(session: TestSession, group_id: int, parent_id: int):
 
 
 @cli.command
-@with_test_session
+@click.pass_obj
 def list_groups(session: TestSession):
     response = session.client.get(
         f"{TEST_ENDPOINT}/api/group",

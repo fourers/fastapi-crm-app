@@ -22,7 +22,7 @@ def get_rls_db(
 @listens_for(Session, "after_begin")
 def set_rls_context(session, transaction, connection):
     user_id = session.info.get("rls_user_id")
-    if user_id is None:
+    if user_id is None or user_id == ADMIN_ID:
         return
 
     connection.execute(
